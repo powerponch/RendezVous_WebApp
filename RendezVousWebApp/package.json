@@ -1,0 +1,15 @@
+{
+  "name": "RendezVousWebApp",
+  "version": "0.0.0",
+  "description": "RendezVousWebApp",
+  "main": "app.js",
+  "author": {
+    "name": "Alfonso Sandoval",
+    "email": ""
+  },
+  "dependencies": {
+    "express": "^4.13.3",
+    "serve-static": "^1.10.0",
+    "socket.io": "^1.3.6"
+  }
+}

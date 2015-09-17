@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PT1 Tercer Reporte </title>
+</head>
+<body>
+    <div id='mainDiv'>
+        <p><strong>Sistema de Videoconferencia basado en WebRTC con acceso a la PSTN: Prueba de conexi&oacute; WebRTC entre tres usuarios</strong></p>
+        <table border="1" width="100%">
+            <tr>
+                <th id="nombreLocal">
+                    Video local
+                </th>
+                <th id="nombreRemoto1">
+                    Video Remoto 1
+                </th>
+                <th id="nombreRemoto2">
+                    Video Remoto 2
+                </th>
+            </tr>
+            <tr>
+                <td>
+                    <video id="localVideo" width="300" height="200" autoplay></video>
+                </td>
+                <td>
+                    <video id="remoteVideo" width="300" height="200" autoplay></video>
+                </td>
+                <td>
+                    <video id="remoteVideo2" width="300" height="200" autoplay></video>
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <script src='assets/adapter.js'></script>
+    <script src='socket.io-client/socket.io.js'></script>
+    <script src='assets/Modelos/InterfazGrafica.js'></script>
+    <script src='assets/Modelos/UsuarioWeb.js'></script>
+    <script src='assets/clienteWebRTC.js'></script>
+</body>
+</html>
