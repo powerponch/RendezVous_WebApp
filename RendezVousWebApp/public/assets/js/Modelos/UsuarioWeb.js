@@ -38,6 +38,15 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         console.error("NO FUE POSIBLE CONECTAR CON EL SERVIDOR DE SEÑALIZACIÓN " + err);
     }
     
+
+    this.VolverARegistrar =
+    function (nombre) {
+        nombreUsuario = nombre;
+        //Envío del mensaje REGISTER
+        socket.emit('REGISTER', nombreUsuario);
+        console.log("CC ---> (REGISTER) " + nombreUsuario);
+    };
+    
     
     /*
      *Envía un mensaje con el formato [cabecera][contenido {de:,para:,mensaje:}]
@@ -48,17 +57,16 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         socket.emit(cabecera, { de: idUsuario, para: destino, contenido: contenido });
     };
     
-
+    
     /*
      * Envía un mensaje de salida de la sala al servidor
      */ 
-    SalirSala =
+    this.SalirSala =
     function () {
         console.log("CC -> Saliendo de la sala ...");
         socket.emit("BYE", idUsuario);
     };
     
-
     /*
      * Obtiene el flujo multimedia local e invoca el
      * objeto de UI para mostrarlo en la interfaz
@@ -66,6 +74,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     AdquirirAudioVideoLocal =
     function (stream) {
         console.log("CC --> Adquiriendo audio y video locales");
+        ui.agregaTextoLog("Adquiriendo audio y video locales");
         flujoLocal = stream;
         
         //Mostrar audio y video
@@ -81,6 +90,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     AdquirirAudioVideoLocalError =
     function (error) {
         console.error('Error de navigator.getUserMedia: ', error);
+       ui.agregaTextoLog('Error de navigator.getUserMedia: ', error);
     };
     
     
@@ -100,6 +110,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     CrearPeerConnection =
     function (clienteDestino) {
         console.log("CC --> Ejecutando función CrearPeerConnection");
+        ui.agregaTextoLog("Ejecutando función CrearPeerConnection");
         
         // Inicializa la variable pc, que será el PeerConnection con el otro usuario
         // 1.- Añade la configuración y las características
@@ -164,6 +175,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     OnSignalingError = 
     function (error) {
         console.log('CC -> Fallo al crear la señalización : ' + error.name);
+       ui.agregaTextoLog('Fallo al crear la señalización : ' + error.name);
     };
     
     
@@ -177,6 +189,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         // 1.- AgregarDescripcionLocal si fue exitosa la creación
         // 2.- onSignalingError si no fue exitosa
         console.log('CC --> Ejecutando CrearOfertaSDP. Creando oferta...');
+        ui.agregaTextoLog("Ejecutando CrearOfertaSDP. Creando oferta...");
         
         console.log('Recuperé al pc: ');
         console.log(peerConnections[clienteDestino]);
@@ -207,6 +220,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     CrearRespuestaSDP =
     function (clienteDestino) {
         console.log('Creando respuesta al otro usuario');
+        ui.agregaTextoLog("Creando respuesta al otro usuario");
         console.log('Recuperé al pc: ');
         console.log(peerConnections[clienteDestino]);
         var pc = peerConnections[clienteDestino];
@@ -270,10 +284,19 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         
         //Cuando reciba OK
         socket.on("OK", function (usuario) {
-            console.log("(OK): "+usuario);
+            console.log("(OK): " + usuario);
             idUsuario = usuario;
-            isIniciaLlamada = true;
+            
+            if (usuario == 0) {
+                isIniciaLlamada = true;
+                console.log("Primer usuario en la sala ....");
+            }
+            else
+                isCanalListo = true;
+            
             ui.NuevoUsuario(idUsuario, nombreUsuario);
+            ui.RedireccionarSala();
+            ui.EstablecerMiNombre(nombreUsuario);
             
             // Llama al método getUserMedia()
             navigator.getUserMedia(constraints, AdquirirAudioVideoLocal, AdquirirAudioVideoLocalError);
@@ -288,6 +311,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         //Cuando reciba INVITE
         socket.on("INVITE", function (mensaje) {
             console.log("(INVITE)");
+            ui.agregaTextoLog("(INVITE)");
             console.log(mensaje);
             RevisarStatusCanal(mensaje.de);
         });
@@ -298,6 +322,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             console.log(mensaje);
             
             if (mensaje.contenido.type == 'offer') {
+                console.log("(MESSAGE) type: offer de (" + mensaje.de + ")");
                 // Esta es una oferta SDP
                 // Si no soy quien inició la llamada, y aún no se
                 // ha arrancado la comunicación, se debe revisar el estado del canal
@@ -344,6 +369,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                 ui.NuevoUsuario(mensaje.de, mensaje.contenido);
                 isCanalListo = true;
                 isIniciaLlamada = true;
+                console.log("CC -> Existe otro participante en la sala: (" + mensaje.contenido + "), con id:(" + mensaje.de + "). El canal está listo: (isCanalListo: " + isCanalListo + "), y ahora es iniciador de llamada: " + isIniciaLlamada + ")");
             }
         });
         

@@ -1,41 +1,31 @@
+
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <title>PT1 Tercer Reporte </title>
+    <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:500,600,700,100,800' rel='stylesheet' type='text/css'>
+    <title>Rendez Vouz</title>
+    <script src='assets/js/adapter.js'></script>
+    <script src='assets/js/scripts.js'></script>
+    <script src='socket.io-client/socket.io.js'></script>
+    <script src='assets/js/Modelos/InterfazGrafica.js'></script>
+    <script src='assets/js/Modelos/UsuarioWeb.js'></script>
+    <script src='assets/js/clienteWebRTC.js'></script>
+    <title>Rendez Vous</title>
 </head>
 <body>
-    <div id='mainDiv'>
-        <p><strong>Sistema de Videoconferencia basado en WebRTC con acceso a la PSTN: Prueba de conexi&oacute; WebRTC entre tres usuarios</strong></p>
-        <table border="1" width="100%">
-            <tr>
-                <th id="nombreLocal">
-                    Video local
-                </th>
-                <th id="nombreRemoto1">
-                    Video Remoto 1
-                </th>
-                <th id="nombreRemoto2">
-                    Video Remoto 2
-                </th>
-            </tr>
-            <tr>
-                <td>
-                    <video id="localVideo" width="300" height="200" autoplay></video>
-                </td>
-                <td>
-                    <video id="remoteVideo" width="300" height="200" autoplay></video>
-                </td>
-                <td>
-                    <video id="remoteVideo2" width="300" height="200" autoplay></video>
-                </td>
-            </tr>
-        </table>
+    <div id="logo">
+        <img src="assets/images/logo.png">
     </div>
-
-    <script src='assets/adapter.js'></script>
-    <script src='socket.io-client/socket.io.js'></script>
-    <script src='assets/Modelos/InterfazGrafica.js'></script>
-    <script src='assets/Modelos/UsuarioWeb.js'></script>
-    <script src='assets/clienteWebRTC.js'></script>
+    <div id="txWelcome">
+        </br>
+        <p style="font-size:20px;font-weight:bold;font-family: 'Raleway';">Bienvenido!!!</p>
+        <p style="font-size:14px;font-family: 'Raleway';">Ingresa tu nombre de usuario</p>
+        <input type="text" id="texto" value="" />
+        </br>
+        </br>
+        <input type="submit" value="Entrar a la sala" onclick="redireccionar()" />
+        <p id="mensajeError" style="font-size:14px;font-weight:bold;color:#FF4000;font-family: 'Raleway';"></p>
+    </div>
 </body>
 </html>

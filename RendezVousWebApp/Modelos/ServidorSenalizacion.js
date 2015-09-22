@@ -51,7 +51,7 @@ function ServidorSenalizacion(app) {
                     
                     //Revisar que el nombre no exista aún en la sala
                     _participantes.forEach(function (item) {
-                        if (item.nombreUsuario==nombreUsuario) {
+                        if (item.nombreUsuario == nombreUsuario) {
                             console.log("Este nombre ya existe ...");
                             nombreValido = false;
                         }
@@ -68,7 +68,7 @@ function ServidorSenalizacion(app) {
                         var nuevoId;
                         var i = 0;
                         
-                        for (i = 0; i <=3; i++) {
+                        for (i = 0; i <= 3; i++) {
                             if (_participantes[i].nombreUsuario == "") {
                                 nuevoId = i;
                                 //Agregación al arreglo de sockets
@@ -135,12 +135,12 @@ function ServidorSenalizacion(app) {
             
             //4.- Salida del usuario de la sala
             socket.on('BYE', function (mensaje) {
-                _participantes[mensaje.de].nombreUsuario = "";
-                _participantes[mensaje.de].socket = null;
-                socket.leave(room);
-                numClients--;
-                console.log("Se la eliminado al cliente " + mensaje.de + " de la sala");
-                io.sockets.in(room).emit('BYE', mensaje.de);
+                _participantes[mensaje].nombreUsuario = "";
+                _participantes[mensaje].socket = null;
+                socket.leave(_room);
+                _numClientes--;
+                console.log("Se la eliminado al cliente " + mensaje + " de la sala");
+                _io.sockets.in(_room).emit('BYE', mensaje);
             });
         });
     };

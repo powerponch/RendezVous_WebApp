@@ -32,10 +32,11 @@
   <ItemGroup>
     <Compile Include="app.js" />
     <Compile Include="Modelos\ServidorSenalizacion.js" />
-    <Compile Include="public\assets\adapter.js" />
-    <Compile Include="public\assets\clienteWebRTC.js" />
-    <Compile Include="public\assets\Modelos\InterfazGrafica.js" />
-    <Compile Include="public\assets\Modelos\UsuarioWeb.js" />
+    <Compile Include="public\assets\js\adapter.js" />
+    <Compile Include="public\assets\js\clienteWebRTC.js" />
+    <Compile Include="public\assets\js\Modelos\InterfazGrafica.js" />
+    <Compile Include="public\assets\js\Modelos\UsuarioWeb.js" />
+    <Compile Include="public\assets\js\scripts.js" />
     <Compile Include="public\socket.io-client\index.js" />
     <Compile Include="public\assets\socket.io-client\lib\index.js" />
     <Compile Include="public\assets\socket.io-client\lib\manager.js" />
@@ -151,6 +152,18 @@
     <Compile Include="public\socket.io-client\node_modules\to-array\index.js" />
     <Compile Include="public\socket.io-client\socket.io.js" />
     <Content Include="package.json" />
+    <Content Include="public\assets\css\style.css" />
+    <Content Include="public\assets\images\Colgar.PNG" />
+    <Content Include="public\assets\images\Dos.PNG" />
+    <Content Include="public\assets\images\Icono.PNG" />
+    <Content Include="public\assets\images\Llamar.PNG" />
+    <Content Include="public\assets\images\logo.png" />
+    <Content Include="public\assets\images\One.png" />
+    <Content Include="public\assets\images\Softphone.PNG" />
+    <Content Include="public\assets\images\Three.png" />
+    <Content Include="public\assets\images\Tres.PNG" />
+    <Content Include="public\assets\images\Two.png" />
+    <Content Include="public\assets\images\Uno.png" />
     <Content Include="public\index.html" />
     <Content Include="public\socket.io-client\History.md" />
     <Content Include="public\socket.io-client\LICENSE" />
@@ -341,8 +354,11 @@
   <ItemGroup>
     <Folder Include="Modelos\" />
     <Folder Include="public\" />
-    <Folder Include="public\assets\Modelos\" />
+    <Folder Include="public\assets\js\Modelos\" />
     <Folder Include="public\assets\" />
+    <Folder Include="public\assets\js\" />
+    <Folder Include="public\assets\css\" />
+    <Folder Include="public\assets\images\" />
     <Folder Include="public\assets\socket.io-client\" />
     <Folder Include="public\assets\socket.io-client\lib\" />
     <Folder Include="public\assets\socket.io-client\node_modules\" />

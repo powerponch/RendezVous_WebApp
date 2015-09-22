@@ -1,0 +1,211 @@
+body {
+margin: 0px;
+ overflow-x: hidden;
+  min-width: 640px;
+  max-width: 100%;
+}
+#container {
+width:100%;
+}
+#pie{
+	width:130%;
+	height:200px;
+}
+#logo {
+text-align: center;
+width: 100%;
+height: 300px;
+background-color: #fff;
+}
+#logo img{
+width: 40%;
+}
+#txWelcome{
+float: left;
+width: 100%;
+height: 100px;
+background-color: #fff;
+}
+#txWelcome p{
+ text-align: center;
+}
+#txWelcome form{
+ text-align: center;
+}
+#header{
+ width: 100%;
+ height: 60px;
+ background-color: #0080FF;
+}
+#headerMargen{
+float:left;
+ width: 70%;
+ height: 60px;
+}
+#headerNombre{
+float:left;
+ width: 22%;
+ height: 60px;
+}
+#headerSalir{
+float:left;
+ width: 8%;
+ height: 60px;
+ background-color:#A4A4A4;
+}
+#mosaicos{
+ width: 100%;
+ height: 350px;
+ background-color: #fff;
+}
+#log{
+	float:left;
+margin-top:40px;
+ width: 40%;
+ height: 200px;
+ background-color: #0080FF;
+}
+#logNombre{
+ width: 100%;
+ height: 40px;
+ background-color: #0080FF;
+ color:#FFF;
+}
+#logTexto{
+position:relative;
+margin-left:0px;
+ width: 100%;
+ height: 160px;
+ background-color: #FFF;
+}
+#logTexto p{
+margin-left:30px;
+}
+#icono{
+	margin-top:60px;
+	float:left;
+	width:34%;
+	height:200px;
+	float:left;
+	text-align:center;
+}
+#softphone{
+	margin-top:40px;
+	float:left;
+	width:22%;
+-webkit-transition: all 1s ease-in-out;
+-moz-transition: all 1s ease-in-out;
+-o-transition: all 1s ease-in-out;
+transition: all 1s ease-in-out;
+}
+#softphone:hover{
+-webkit-transform: translate(-75%, 0%);
+-moz-transform: translate(-75%, 0%);
+-o-transform: translate(-75%, 0%);
+-ms-transform: translate(-75%, 0%);
+transform: translate(-75%, 0%);
+}
+#soft{
+	float:left;
+height:340px;
+width:70%;
+background-color: #0080FF;
+}
+#screen{
+float:left;
+width:90%;
+height:50px;
+margin-top: 5%;
+margin-left: 5%;
+margin-right:5%;
+margin-bottom:5%;
+background-color: #FFF;
+}
+#numbers{
+float:left;
+width:90%;
+height:160px;
+background-color: #0080FF;
+margin-top: 5%;
+margin-right:5%;
+margin-bottom:5%;
+margin-left: 5%;
+}
+#buttons{
+	position:left;
+float:left;
+width:90%;
+height:60px;
+background-color: #0080FF;
+margin-top: 5%;
+margin-right:5%;
+margin-bottom:5%;
+margin-left: 5%;
+text-align:center;
+}
+#buttons img{
+	margin-top:-20px;
+	 text-align: center;
+}
+#phone {
+	float:left;
+}
+.number{
+float:left;
+width:27%;
+height:30px;
+margin-left: 5%;
+margin-bottom:5%;
+background-color:#A4A4A4;
+text-align:center;
+color:#FFF;
+font-size:13px;
+font-family: 'Raleway';
+font-weight:bold;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.number p{
+margin-top:8%;
+-webkit-touch-callout: none;
+-webkit-user-select: none;
+-khtml-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.mosaico {
+float: left;
+ width: 33.3%;
+ height: 350px;
+ background-color: #fff;
+}
+.mosaico img{
+width: 10%;
+}
+.nombreMosaico {
+width: 100%;
+height: 80px;
+background-color: #fff;
+margin-top:20px;
+}
+.nombreMosaico img{
+float:left;
+}
+.nombreMosaico p{
+float:left;
+}
+.videoMosaico{
+width: 100%;
+height: 320px;
+margin-top:20px;
+
+background-color: #FFF;
+text-align: center;
+}
+
+
