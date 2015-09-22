@@ -47,7 +47,7 @@ var constraints = {
 
 //Configuraciones temporales
 var puerto = "3000";
-var ip = "192.168.0.4";
+var ip = "192.168.1.193";
 var usuarioWeb = null;
 var usuarioWeb2 = null;
 /*
@@ -74,7 +74,7 @@ function redireccionar() {
         
         //Al salir de la sala, deben enviar un mensaje de bye
         window.onbeforeunload = function () {
-                usuarioWeb.SalirSala();
+            usuarioWeb.SalirSala();
         }
     }
     else {
@@ -83,9 +83,26 @@ function redireccionar() {
     }
 }
 
-function salirSala(){
+function salirSala() {
     usuarioWeb.SalirSala();
     //cargar el html de inicio de sesión ...
+    console.log("Saliendo de la sala .....");
+    var html = [
+        '<div id="logo">',
+        '		<img src="assets/images/logo.png">',
+        '	</div>',
+        '	<div id="txWelcome">',
+        '		</br>',
+        '		<p style="font-size:20px;font-weight:bold;font-family: "Raleway";">Bienvenido!!!</p>',
+        '		<p style="font-size:14px;font-family: "Raleway";">Ingresa tu nombre de usuario</p>',
+        '		 <input type="text" id="texto"name="texto" value="" />',
+        '		 </br>',
+        '		 </br>',
+        '        <input type="submit" id="btnEntrar" value="Entrar a la sala" onClick="reload()"/>',
+        '		<p id="mensajeError" style="font-size:14px;font-weight:bold;color:#FF4000;font-family: "Raleway";"></p>',
+        '	</div>'
+    ].join('');
+    document.body.innerHTML = html;
 }
 
 

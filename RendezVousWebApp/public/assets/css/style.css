@@ -8,8 +8,10 @@ margin: 0px;
 width:100%;
 }
 #pie{
+margin-top:100px;
+background-color:#A4A4A4;
 	width:130%;
-	height:200px;
+	height:400px;
 }
 #logo {
 text-align: center;
@@ -25,6 +27,7 @@ float: left;
 width: 100%;
 height: 100px;
 background-color: #fff;
+text-align: center;
 }
 #txWelcome p{
  text-align: center;
@@ -44,19 +47,44 @@ float:left;
 }
 #headerNombre{
 float:left;
- width: 22%;
+ width: 20%;
  height: 60px;
 }
 #headerSalir{
 float:left;
- width: 8%;
+ width: 10%;
  height: 60px;
  background-color:#A4A4A4;
+ cursor:pointer;
+}
+#headerSalir img{
+float:left;
+width:40%;
+}
+#margenMosaicos{
+float:left;
+background-color: #FFF;
+width:100%;
+height:50px;
 }
 #mosaicos{
  width: 100%;
  height: 350px;
  background-color: #fff;
+ margin-left:3%;
+margin-right:3%;
+}
+#mosaico1 {
+float: left;
+ width: 33.3%;
+ height: 350px;
+ background-color: #FE2E2E;
+}
+#nombreMosaico1 {
+width: 100%;
+height: 80px;
+background-color: #FE2E2E;
+margin-top:20px;
 }
 #log{
 	float:left;
@@ -150,6 +178,45 @@ text-align:center;
 #phone {
 	float:left;
 }
+#line{
+float:left;
+width:100%;
+height:5px;
+background-color: #04B4AE;
+}
+#footer {
+font-size:14px;
+font-family:'Raleway';
+float:left;
+background-color: #2E2E2E;
+width:100%;
+height:400px;
+}
+#logosFooter {
+width: 100%;
+height:170px;
+text-align:center;
+}
+#logosFooter img{
+width: 10%;
+margin-left: 10%;
+margin-right:10%;
+margin-top:5%;
+}
+#logosNombres{
+width: 100%;
+height: 60px;
+}
+#nombresFooter {
+text-align:center;
+color:#FFF;
+}
+.lg {
+float: left;
+width: 33.3%;
+text-align:center;
+color: #FFF;
+}
 .number{
 float:left;
 width:27%;
@@ -180,9 +247,10 @@ user-select: none;
 }
 .mosaico {
 float: left;
- width: 33.3%;
+ width: 30%;
  height: 350px;
  background-color: #fff;
+box-shadow: 10px 10px 5px #888888;
 }
 .mosaico img{
 width: 10%;
@@ -201,7 +269,7 @@ float:left;
 }
 .videoMosaico{
 width: 100%;
-height: 320px;
+height: 250px;
 margin-top:20px;
 
 background-color: #FFF;
