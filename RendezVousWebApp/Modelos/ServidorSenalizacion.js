@@ -41,7 +41,7 @@ function ServidorSenalizacion(app) {
                 console.log("SS --> (REGISTER): " + nombreUsuario);
                 
                 //Si la sala tiene cupo, se valida que el nombre no esté duplicado
-                if (_numClientes <= 3) {
+                if (_numClientes <= 2) {
                     
                     console.log("Hay actualmente (" + _numClientes + ") clientes en la sala");
                     

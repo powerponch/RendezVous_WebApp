@@ -54,7 +54,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     EnviarMensaje =
     function (cabecera, destino, contenido) {
         console.log("CC ---> Enviando el mensaje: (" + cabecera + ") " + contenido);
-        socket.emit(cabecera, { de: idUsuario, para: destino, contenido: contenido });
+        socket.emit(cabecera, { de: idUsuario, nombre: nombreUsuario, para: destino, contenido: contenido });
     };
     
     
@@ -321,6 +321,8 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             console.log('(MESSAGE)');
             console.log(mensaje);
             
+            ui.NuevoUsuario(mensaje.de, mensaje.nombre);
+
             if (mensaje.contenido.type == 'offer') {
                 console.log("(MESSAGE) type: offer de (" + mensaje.de + ")");
                 // Esta es una oferta SDP

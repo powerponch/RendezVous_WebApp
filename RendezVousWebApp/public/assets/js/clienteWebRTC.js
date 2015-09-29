@@ -47,7 +47,7 @@ var constraints = {
 
 //Configuraciones temporales
 var puerto = "3000";
-var ip = "192.168.1.193";
+var ip = "127.0.0.1";
 var usuarioWeb = null;
 var usuarioWeb2 = null;
 /*
@@ -88,21 +88,35 @@ function salirSala() {
     //cargar el html de inicio de sesión ...
     console.log("Saliendo de la sala .....");
     var html = [
-        '<div id="logo">',
+        '<!DOCTYPE html>',
+        '<html lang="es">',
+        '<head>',
+        '    <link rel="stylesheet" type="text/css" href="assets/css/style.css"> ',
+        '	<link href="http://fonts.googleapis.com/css?family=Raleway:500,600,700,100,800" rel="stylesheet" type="text/css">',
+        '    <title>Rendez Vous</title>',
+        '    <script type="text/javascript" src="s.js"></script>',
+        '</head>',
+        '<body>',
+        '	<div id="logo">',
         '		<img src="assets/images/logo.png">',
         '	</div>',
         '	<div id="txWelcome">',
         '		</br>',
-        '		<p style="font-size:20px;font-weight:bold;font-family: "Raleway";">Bienvenido!!!</p>',
+        '		<p style="font-size:20px;font-weight:bold;font-family: "Raleway";">Bienvenido(a)</p>',
         '		<p style="font-size:14px;font-family: "Raleway";">Ingresa tu nombre de usuario</p>',
         '		 <input type="text" id="texto"name="texto" value="" />',
         '		 </br>',
         '		 </br>',
         '        <input type="submit" id="btnEntrar" value="Entrar a la sala" onClick="reload()"/>',
         '		<p id="mensajeError" style="font-size:14px;font-weight:bold;color:#FF4000;font-family: "Raleway";"></p>',
-        '	</div>'
+        '	</div>',
+        '</body>',
+        '</html>',
+        ''
     ].join('');
+
     document.body.innerHTML = html;
+    
 }
 
 

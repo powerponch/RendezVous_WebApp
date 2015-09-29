@@ -154,8 +154,12 @@
     <Content Include="package.json" />
     <Content Include="public\assets\css\style.css" />
     <Content Include="public\assets\images\btnDos.png" />
+    <Content Include="public\assets\images\btnEnd1.png" />
+    <Content Include="public\assets\images\btnEnd2.png" />
     <Content Include="public\assets\images\btnSalir.png" />
     <Content Include="public\assets\images\btnSalirHover.png" />
+    <Content Include="public\assets\images\btnSend1.png" />
+    <Content Include="public\assets\images\btnSend2.png" />
     <Content Include="public\assets\images\btnTres.png" />
     <Content Include="public\assets\images\btnUno.png" />
     <Content Include="public\assets\images\Colgar.PNG" />
