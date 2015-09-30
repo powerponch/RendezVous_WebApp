@@ -172,6 +172,7 @@
     <Content Include="public\assets\images\phoneCalling.png" />
     <Content Include="public\assets\images\phoneResting.png" />
     <Content Include="public\assets\images\Softphone.PNG" />
+    <Content Include="public\icon.ico" />
     <Content Include="public\index.html" />
     <Content Include="public\socket.io-client\History.md" />
     <Content Include="public\socket.io-client\LICENSE" />
