@@ -20,6 +20,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     var ui = new InterfazGrafica();     //Interfaz gráfica del usuario
     
     var flujoLocal;                     //Flujo multimedia de este equipo de cómputo
+    var audioLocal;			//Audio de este equipo de cómputo para comunicarse con el usuario PBX
     var socket;                         //Socket del usuario para comunicarse
     var constraints;                    //Objeto JSON para definir si se usará audio y/o video
     var pc_config;                      //Configuración ICE para conexion p2p
@@ -38,7 +39,9 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         console.error("NO FUE POSIBLE CONECTAR CON EL SERVIDOR DE SEÑALIZACIÓN " + err);
     }
     
-
+    /*
+     *Vuelve a intentar el registro del usuario web con un nuevo nombre
+     */
     this.VolverARegistrar =
     function (nombre) {
         nombreUsuario = nombre;
@@ -75,7 +78,17 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     function (stream) {
         console.log("CC --> Adquiriendo audio y video locales");
         ui.agregaTextoLog("Adquiriendo audio y video locales");
+	//Audio + video para transmitir con otros usuarios Web
         flujoLocal = stream;
+	console.log("El flujo local audio+ video es: ");
+	console.log(flujoLocal);
+
+	//Remover el track de video para almacenar solo el audio
+	audioLocal=stream;
+	var videoTrack = audioLocal.getVideoTracks();
+	if (videoTrack.length > 0) audioLocal.removeTrack(videoTrack[0]);
+	console.log("El flujo local audio solamente es: ");
+	console.log(audioLocal);
         
         //Mostrar audio y video
         ui.MostrarFlujo(idUsuario, stream);
@@ -102,6 +115,20 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         console.log('CC -> Se removió el flujo remoto ' + event);
     }
     
+
+    /*
+     *Realiza una llamada telefónica enviando un mensaje al servidor de señalización
+     *Mediante la UI obtiene el número a marcar y lo envía en el mensaje
+     */
+     this.RealizarLlamadaTelefonica(){
+	console.log("Realizando llamada telefónica ....");
+	var numTel= ui.LlamarTelefono();
+	console.log("El número a marcar es: "+numTel);
+
+	//El mensaje se envía al UsuarioPBX por medio del servidor de señalizacion
+	EnviarMensaje("MESSAGE",3,numTel);
+	
+     };
     
     /*
      * Crea una instancia de PeerConnection entre dos usuarios
@@ -122,7 +149,15 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         var pc;
         try {
             pc = new RTCPeerConnection(pc_config, pc_constraints);
-            pc.addStream(flujoLocal);
+	
+	    if(clienteDestino==3){
+		console.log("Agregando al peer connection solo audio ...");
+		pc.addStream(audioLocal);
+	    }
+	    else{
+	        console.log("Agregando flujo completo: ");
+		pc.addStream(flujoLocal);            
+	    }
             
             //Si recibo un candidato ICE del otro usuario
             pc.onicecandidate = function (event) {
@@ -156,7 +191,6 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             ui.MostrarFlujo(clienteDestino, event.stream);
             peers[clienteDestino] = event.stream;
             console.log(peers[clienteDestino]);
-            cantUsuarios++;
         }
         
         //Si debo remover el flujo del otro usuario
@@ -261,7 +295,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             isIniciado[clienteDestino] = true;
             console.log("CC -> Se ha creado un PeerConnection con el otro usuario (isIniciado: " + isIniciado[clienteDestino] + ")");
             
-            // Si yo inicié se ejecuta la función CrearOfertaSDP
+            // Si yo inicié se ejecuta la función CrearO fertaSDP
             if (isIniciaLlamada) {
                 CrearOfertaSDP(clienteDestino);
             }
@@ -287,11 +321,11 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             console.log("(OK): " + usuario);
             idUsuario = usuario;
             
-            if (usuario == 0) {
+            /**if (usuario == 0) {
                 isIniciaLlamada = true;
                 console.log("Primer usuario en la sala ....");
             }
-            else
+            else**/
                 isCanalListo = true;
             
             ui.NuevoUsuario(idUsuario, nombreUsuario);
@@ -366,12 +400,21 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 
             }
             else {
-                //Un nuevo usuario llegó a la sala. Se registra su id y su nombre en la UI
-                console.log("CC -> Ha llegado un nuevo usuario: " + mensaje.contenido);
-                ui.NuevoUsuario(mensaje.de, mensaje.contenido);
-                isCanalListo = true;
-                isIniciaLlamada = true;
-                console.log("CC -> Existe otro participante en la sala: (" + mensaje.contenido + "), con id:(" + mensaje.de + "). El canal está listo: (isCanalListo: " + isCanalListo + "), y ahora es iniciador de llamada: " + isIniciaLlamada + ")");
+		//Si el contenido del mensaje comienza en 9, es porque quieren marcar
+		if(mensaje.contenido.charAt(0)=="9"){
+			console.log("Llamada en progreso a: "+mensaje.contenido);
+			ui.agregaTextoLog("Llamada en progreso del número: "+mensaje.contenido.substring(1,mensaje.contenido.length));
+
+			//bloquear mi softphone para que no haga llamadas
+			ui.BloquearSoftphone();			
+		}else{
+			//Un nuevo usuario llegó a la sala. Se registra su id y su nombre en la UI
+                	console.log("CC -> Ha llegado un nuevo usuario: " + mensaje.contenido);
+                	ui.NuevoUsuario(mensaje.de, mensaje.contenido);
+                	isCanalListo = true;
+                	isIniciaLlamada = true;
+                	console.log("CC -> Existe otro participante en la sala: (" + mensaje.contenido + "), con id:(" + mensaje.de + "). El canal está listo: (isCanalListo: " + isCanalListo + "), y ahora es iniciador de llamada: " + isIniciaLlamada + ")");
+		}
             }
         });
         

@@ -40,87 +40,114 @@ function ServidorSenalizacion(app) {
             socket.on('REGISTER', function (nombreUsuario) {
                 console.log("SS --> (REGISTER): " + nombreUsuario);
                 
-                //Si la sala tiene cupo, se valida que el nombre no esté duplicado
-                if (_numClientes <= 2) {
-                    
-                    console.log("Hay actualmente (" + _numClientes + ") clientes en la sala");
-                    
-                    //Se recorre el arreglo de participantes para verificar 
-                    //que el nombre del nuevo participante no esté ya duplicado
-                    var nombreValido = true;
-                    
-                    //Revisar que el nombre no exista aún en la sala
-                    _participantes.forEach(function (item) {
-                        if (item.nombreUsuario == nombreUsuario) {
-                            console.log("Este nombre ya existe ...");
-                            nombreValido = false;
-                        }
-                    });
-                    
-                    //El nombre ya está duplicado
-                    if (!nombreValido) {
-                        console.log("El nombre ya está duplicado")
-                        socket.emit('Service Unavailable', 1);
-                    }
+		//Si el usuario es pbx, se le debe asignar la cuarta posición
+		if(nombreUsuario=="pbx"){
+			//Registro en el arreglo de la sala
+			_participantes[3].nombreUsuario = nombreUsuario;
+		        _participantes[3].socket = socket;
+		        console.log('El usuario PBX en la sala ocupa la posición 3');
 
-                    //El nombre está disponible, se busca ahora la posición en la sala
-                    else {
-                        var nuevoId;
-                        var i = 0;
-                        
-                        for (i = 0; i <= 3; i++) {
-                            if (_participantes[i].nombreUsuario == "") {
-                                nuevoId = i;
-                                //Agregación al arreglo de sockets
-                                _participantes[nuevoId].nombreUsuario = nombreUsuario;
-                                _participantes[nuevoId].socket = socket;
-                                console.log('La posicion del usuario en la sala es: ' + nuevoId);
-                                break;
-                            }
-                        }
-                        
-                        try {
-                            console.log("SS --> (Crear sala o unirse a sala) Usuario " + nombreUsuario);
-                            console.log('SS --> La sala tiene ' + _numClientes + ' clientes');
-                            
-                            //El primer cliente en unirse
-                            if (_numClientes == 0) {
-                                socket.join(_room);                                    //Se le agrega a la sala
-                                socket.emit('OK', 0);                                       //Mensaje de que se creó la sala
-                                console.log('SS --> Primer cliente en la sala: ' + nuevoId);
-                                _numClientes++;
-                            } 
+			//A todos quienes estén en la sala, se les envía un mensaje para notificar la llegada de un nuevo usuario
+		        _io.sockets.in(_room).emit('MESSAGE', { de: nuevoId, para: '', contenido: nombreUsuario });
 
-                            //Otros clientes en llegar a la sala
-                            else {
-                                //A todos quienes estén en la sala, se les envía un mensaje para notificar la llegada de un nuevo usuario
-                                _io.sockets.in(_room).emit('MESSAGE', { de: nuevoId, para: '', contenido: nombreUsuario });
-                                //Agregación del nuevo cliente         
-                                socket.join(_room);
-                                socket.emit('OK', nuevoId);
-                                console.log('SS --> Nuevo cliente en la sala: ' + nuevoId);
-                                _numClientes++;
-                            }
-                        } catch (e) {
-                            console.log('Error en el mensaje conectar: ' + e.message);
-                            return;
-                        }
-                    }
-                    //La sala ya está llena
-                } else {
-                    console.log("La sala ya está llena")
-                    socket.emit('Service Unavailable', 0);
-                }
+		        //Agregación del nuevo cliente         
+		        socket.join(_room);
+		        socket.emit('OK', 3);
+		        console.log('SS --> Nuevo cliente en la sala: 3');
+		}
+		//Si es cualquier otro usuario, se verifica su validez
+		else{
+			//Si la sala tiene cupo, se valida que el nombre no esté duplicado
+		        if (_numClientes <= 2) {
+		            
+		            console.log("Hay actualmente (" + _numClientes + ") clientes en la sala");
+		            
+		            //Se recorre el arreglo de participantes para verificar 
+		            //que el nombre del nuevo participante no esté ya duplicado
+		            var nombreValido = true;
+		            
+		            //Revisar que el nombre no exista aún en la sala
+		            _participantes.forEach(function (item) {
+		                if (item.nombreUsuario == nombreUsuario) {
+		                    console.log("Este nombre ya existe ...");
+		                    nombreValido = false;
+		                }
+		            });
+		            
+		            //El nombre ya está duplicado
+		            if (!nombreValido) {
+		                console.log("El nombre ya está duplicado")
+		                socket.emit('Service Unavailable', 1);
+		            }
+
+		            //El nombre está disponible, se busca ahora la posición en la sala
+		            else {
+		                var nuevoId;
+		                var i = 0;
+		                
+		                for (i = 0; i <= 3; i++) {
+		                    if (_participantes[i].nombreUsuario == "") {
+		                        nuevoId = i;
+		                        //Agregación al arreglo de sockets
+		                        _participantes[nuevoId].nombreUsuario = nombreUsuario;
+		                        _participantes[nuevoId].socket = socket;
+		                        console.log('La posicion del usuario en la sala es: ' + nuevoId);
+		                        break;
+		                    }
+		                }
+		                
+		                try {
+		                    console.log("SS --> (Crear sala o unirse a sala) Usuario " + nombreUsuario);
+		                    console.log('SS --> La sala tiene ' + _numClientes + ' clientes');
+		                    
+		                    //El primer cliente en unirse
+		                    if (_numClientes == 0) {
+		                        socket.join(_room);                                    //Se le agrega a la sala
+		                        socket.emit('OK', 0);                                       //Mensaje de que se creó la sala
+		                        console.log('SS --> Primer cliente en la sala: ' + nuevoId);
+		                        _numClientes++;
+		                    } 
+
+		                    //Otros clientes en llegar a la sala
+		                    else {
+		                        //A todos quienes estén en la sala, se les envía un mensaje para notificar la llegada de un nuevo usuario
+		                        _io.sockets.in(_room).emit('MESSAGE', { de: nuevoId, para: '', contenido: nombreUsuario });
+		                        //Agregación del nuevo cliente         
+		                        socket.join(_room);
+		                        socket.emit('OK', nuevoId);
+		                        console.log('SS --> Nuevo cliente en la sala: ' + nuevoId);
+		                        _numClientes++;
+		                    }
+		                } catch (e) {
+		                    console.log('Error en el mensaje conectar: ' + e.message);
+		                    return;
+		                }
+		            }
+		            //La sala ya está llena
+		        } else {
+		            console.log("La sala ya está llena")
+		            socket.emit('Service Unavailable', 0);
+		        }
+		}//Fin de else
             });//Fin de register
             
             
             
             //2.- Mensajería instantánea
             socket.on('MESSAGE', function (mensaje) {
-                console.log('SS -----> (MESSAGE): ', mensaje);
-                //El mensaje va dirigido a un usuario en específico de la sala
-                console.log('Mensaje de: ' + mensaje.de + ' para: ' + mensaje.para);
-                _participantes[mensaje.para].socket.emit('MESSAGE', mensaje);
+		 console.log('SS -----> (MESSAGE): ', mensaje);
+
+		//Si recibo un mensaje para el UsuarioPBX, se debe mandar un
+		//mensaje broadcast para que los demás bloqueen su teléfono
+		if(mensaje.contenido.charAt(0)=="9"){
+			console.log("Notificación de llamada en progreso ...");
+			_io.sockets.in(_room).emit('MESSAGE', { de: mensaje.de, para: '', contenido: mensaje.contenido });
+		}
+		else{		
+                	//El mensaje va dirigido a un usuario en específico de la sala
+                	console.log('Mensaje de: ' + mensaje.de + ' para: ' + mensaje.para);
+                	_participantes[mensaje.para].socket.emit('MESSAGE', mensaje);
+		}
             });
             
             

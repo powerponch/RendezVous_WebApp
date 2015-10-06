@@ -38,4 +38,10 @@ var serv = new Servidor(app);
 
 //Creación de la instancia
 serv.InicializarSala();
-serv.Iniciar(); 
+serv.Iniciar();
+
+//apertura del panel de control del sistema
+//junto con el panel se creará una nueva instancia de UsuarioPBX
+//la cual se conectará automáticamente a Asterisk
+var open = require('open');
+open("127.0.0.1:3000/panelControl.html","firefox");

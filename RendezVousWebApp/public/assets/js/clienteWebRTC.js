@@ -45,11 +45,11 @@ var constraints = {
     }
 }
 
-//Configuraciones temporales
+//Variables de configuración de la instancia
 var puerto = "3000";
 var ip = "127.0.0.1";
 var usuarioWeb = null;
-var usuarioWeb2 = null;
+
 /*
  * Crea una instancia de un usuario web y valida sus propiedades
  * De ser válido, redirecciona a la página de la sala de videoconferencia 
@@ -83,8 +83,14 @@ function redireccionar() {
     }
 }
 
+/*
+*Al presionar el botón, se sale de la página enviando mensaje de BYE 
+*Se renderiza el login
+*/
 function salirSala() {
+    //Envío del mensaje de BYE	
     usuarioWeb.SalirSala();
+
     //cargar el html de inicio de sesión ...
     console.log("Saliendo de la sala .....");
     var html = [
@@ -116,8 +122,18 @@ function salirSala() {
     ].join('');
 
     document.body.innerHTML = html;
-    
 }
+
+
+/*
+*Al presionar el botón de SEND del softphone, se envía un mensaje al servidor para 
+*llamar por medio del UsuarioPBX. Se bloquean los softphones de los demás.
+*/
+function llamarTel(){
+	console.log("Se está haciendo una llamada telefónica ......");
+	usuarioWeb.RealizarLlamadaTelefonica();
+}
+
 
 
 

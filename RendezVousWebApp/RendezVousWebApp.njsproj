@@ -31,7 +31,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="app.js" />
+    <Compile Include="js\jquery-1.6.1.min.js" />
+    <Compile Include="js\jssip-0.7.4.js" />
+    <Compile Include="js\miScript.js" />
+    <Compile Include="js\rtcninja-temasys.min.js" />
     <Compile Include="Modelos\ServidorSenalizacion.js" />
+    <Compile Include="Modelos\UsuarioPBX.js" />
     <Compile Include="public\assets\js\adapter.js" />
     <Compile Include="public\assets\js\clienteWebRTC.js" />
     <Compile Include="public\assets\js\Modelos\InterfazGrafica.js" />
@@ -152,6 +157,7 @@
     <Compile Include="public\socket.io-client\node_modules\to-array\index.js" />
     <Compile Include="public\socket.io-client\socket.io.js" />
     <Content Include="package.json" />
+    <Content Include="panelControl.html" />
     <Content Include="public\assets\css\style.css" />
     <Content Include="public\assets\images\btnDos.png" />
     <Content Include="public\assets\images\btnEnd1.png" />
@@ -362,6 +368,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Modelos\" />
+    <Folder Include="js\" />
     <Folder Include="public\" />
     <Folder Include="public\assets\js\Modelos\" />
     <Folder Include="public\assets\" />
