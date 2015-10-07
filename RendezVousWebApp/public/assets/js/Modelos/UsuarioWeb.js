@@ -92,7 +92,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         
         //Mostrar audio y video
         ui.MostrarFlujo(idUsuario, stream);
-        EnviarMensaje("INVITE", 0, nombreUsuario);
+        EnviarMensaje("INVITE", idUsuario, nombreUsuario);
     };
     
     
@@ -124,10 +124,10 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 	console.log("Realizando llamada telefónica ....");
 	var numTel= ui.LlamarTelefono();
 	console.log("El número a marcar es: "+numTel);
-
+	isCanalListo=true;
+	isIniciaLlamada=true;
 	//El mensaje se envía al UsuarioPBX por medio del servidor de señalizacion
 	EnviarMensaje("MESSAGE",3,numTel);
-	
      };
     
     /*
@@ -406,7 +406,9 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 			ui.agregaTextoLog("Llamada en progreso del número: "+mensaje.contenido.substring(1,mensaje.contenido.length));
 
 			//bloquear mi softphone para que no haga llamadas
-			ui.BloquearSoftphone();			
+			ui.BloquearSoftphone();	
+			isCanalListo = true;
+                	isIniciaLlamada = true;		
 		}else{
 			//Un nuevo usuario llegó a la sala. Se registra su id y su nombre en la UI
                 	console.log("CC -> Ha llegado un nuevo usuario: " + mensaje.contenido);

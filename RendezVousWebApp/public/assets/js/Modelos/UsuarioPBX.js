@@ -13,6 +13,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     var isCanalListo = false;           //¿El canal esta listo?
     var isIniciaLlamada = false;        //¿Soy yo q//uien inicia la llamada?
     var isIniciado = [];                //¿La llamada ya se inició?
+    var isPeticionLlamada=false; 	//¿Me solicitaron hacer una llamada telefónica?
     
     //Variables de sesión WebRTC
     var peers = new Array(3);           //Arreglo de flujos remotos
@@ -241,7 +242,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         
         //Mostrar audio y video
         //ui.MostrarFlujo(idUsuario, stream);
-        EnviarMensaje("INVITE", 0, nombreUsuario);
+        EnviarMensaje("INVITE", idUsuario, nombreUsuario);
     };
     
     
@@ -449,11 +450,11 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
             console.log("(OK): " + usuario);
             idUsuario = usuario;
             
-            if (usuario == 3) {
+            /**if (usuario == 3) {
                 isIniciaLlamada = true;
                 console.log("Primer usuario en la sala ....");
             }
-            else
+            else**/
                 isCanalListo = true;
             
             //ui.NuevoUsuario(idUsuario, nombreUsuario);
@@ -471,12 +472,12 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         });
         
         //Cuando reciba INVITE
-        socket.on("INVITE", function (mensaje) {
+        /**socket.on("INVITE", function (mensaje) {
             console.log("(INVITE)");
             //ui.agregaTextoLog("(INVITE)");
             console.log(mensaje);
             RevisarStatusCanal(mensaje.de);
-        });
+        });**/
         
         //Cuando reciba MESSAGE
         socket.on("MESSAGE", function (mensaje) {
@@ -532,6 +533,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 		//Si el contenido del mensaje comienza en 9, es porque quieren marcar
 		if(mensaje.contenido.charAt(0)=="9"){
 			console.log("Se desea marcar al número "+mensaje.contenido);
+			
 		}
 		else{
 			//Un nuevo usuario llegó a la sala. Se registra su id y su nombre en la //ui
