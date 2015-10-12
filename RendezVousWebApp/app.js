@@ -30,7 +30,7 @@ var io = require('socket.io');
 
 //Invocar el servidor y enviar en la petición las páginas de la carpeta public
 //se envía por default la página index.html
-var app = express().use(serveStatic(__dirname + '/public')).listen(3000);
+var app = express().use(serveStatic(__dirname + '/public')).listen(3000, "0.0.0.0");
 
 //Uso del modelo ServidorSenalizacion
 var Servidor = require('./Modelos/ServidorSenalizacion.js');
@@ -44,4 +44,4 @@ serv.Iniciar();
 //junto con el panel se creará una nueva instancia de UsuarioPBX
 //la cual se conectará automáticamente a Asterisk
 var open = require('open');
-open("127.0.0.1:3000/panelControl.html","firefox");
+open("10.100.0.5:3000/panelControl.html","firefox");

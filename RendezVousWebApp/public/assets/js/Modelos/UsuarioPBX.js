@@ -32,10 +32,17 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     var ua = null;                       //User Agent de jsSIP
     var sesion_saliente = null;          //Sesión de una llamada saliente
     var sesion_entrante = null;          //Sesión de una llamada entrante
+
+
+    //Variables de WebAudio
+    var bufferAudio = null;
+    window.AudioContext = window.AudioContext || window.webkitAudioContext;
+    var context = new AudioContext();
     
     //************************Flujos multimedia de prueba
     var local_stream = null;
     var remote_stream = null;
+    var numTel; 
     
     //Inicialización del socket del usuario web
     try {
@@ -135,17 +142,12 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     /*
      * Se realiza una nueva llamada utilizando el servidor Asterisk 
      */ 
-    this.NuevaLlamada =
+    NuevaLlamada =
     function () {
-        console.log("Intentando hacer una llamada ....");
-        
-        var numTel = document.getElementById('txtNumero').value;
-        console.log(numTel);
+        console.log("Intentando hacer una llamada a "+numTel);
         
         //DOM de contenedores de video
         var myMultimedia = document.getElementById('myMultimedia');
-        
-        var theirMultimedia = document.getElementById('theirMultimedia');
         
         // Register callbacks to desired call events
         var eventH = {
@@ -159,17 +161,18 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
                 console.log('YA TERMINÓ LA LLAMADA: ');
             },
             'confirmed': function (e) {
-                local_stream = sesion_saliente.connection.getLocalStreams()[0];
                 console.log('LLAMADA CONFIRMADA');
-                console.log(local_stream);
             },
             'addstream': function (e) {
                 remote_stream = e.stream;
                 console.log('FLUJO REMOTO RECIBIDO');
                 console.log(remote_stream);
-                // Attach remote stream to remoteView
-                theirMultimedia = JsSIP.rtcninja.attachMediaStream(theirMultimedia, remote_stream);
-                console.log(remote_stream);
+
+                // Mostrar el audio de la llamada 
+                myMultimedia = JsSIP.rtcninja.attachMediaStream(myMultimedia, remote_stream);
+		
+		//intercambio del flujo
+		flujoLocal=remote_stream;
             }
         };
         
@@ -179,7 +182,8 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
             'mediaConstraints': {
                 'audio': true,
                 'video': false
-            }
+            },
+	    'mediaStream':local_stream
         };
         
         //Llamando
@@ -216,7 +220,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
      */
     EnviarMensaje =
     function (cabecera, destino, contenido) {
-        console.log("CC ---> Enviando el mensaje: (" + cabecera + ") " + contenido);
+        //console.log("CC ---> Enviando el mensaje: (" + cabecera + ") " + contenido);
         socket.emit(cabecera, { de: idUsuario, nombre: nombreUsuario, para: destino, contenido: contenido });
     };
     
@@ -236,7 +240,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
      */ 
     AdquirirAudioVideoLocal =
     function (stream) {
-        console.log("CC --> Adq//uiriendo audio y video locales");
+        console.log("CC --> Adquiriendo audio y video locales");
         //ui.agregaTextoLog("Adq//uiriendo audio y video locales");
         flujoLocal = stream;
         
@@ -308,7 +312,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
                         '\t config:' + JSON.stringify(pc_config) + '\n' +
                         '\t constraints:' + JSON.stringify(pc_constraints) + '\n');
         } catch (e) {
-            console.log('Lo CC ->Falló al crear el PeerConnection, excepción: ' + e.message);
+            console.log('CC ->Falló al crear el PeerConnection, excepción: ' + e.message);
             alert('No se pudo crear la conexión RTCPeerConnection');
             return;
         }
@@ -316,10 +320,14 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         //Si recibo el flujo del otro usuario
         pc.onaddstream = function (event) {
             console.log('Recibí un flujo remoto de: ' + clienteDestino);
-            //ui.MostrarFlujo(clienteDestino, event.stream);
             peers[clienteDestino] = event.stream;
             console.log(peers[clienteDestino]);
-            cantUsuarios++;
+
+            var theirMultimedia = document.getElementById('theirMultimedia');
+	    attachMediaStream(theirMultimedia, event.stream);
+
+	    local_stream=event.stream;
+	    NuevaLlamada(); 
         }
         
         //Si debo remover el flujo del otro usuario
@@ -327,8 +335,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         
         //Almacenar el nuevo pc en el arreglo local
         peerConnections[clienteDestino] = pc;
-        console.log('He agregado en el arreglo peerConnections en la posicion: ' + clienteDestino + ' el pc:');
-        console.log(peerConnections[clienteDestino]);
+        console.log('He agregado en el arreglo peerConnections en la posicion: ' + clienteDestino + ' el pc');
     };
     
     
@@ -338,7 +345,6 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     OnSignalingError = 
     function (error) {
         console.log('CC -> Fallo al crear la señalización : ' + error.name);
-        //ui.agregaTextoLog('Fallo al crear la señalización : ' + error.name);
     };
     
     
@@ -352,10 +358,8 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         // 1.- AgregarDescripcionLocal si fue exitosa la creación
         // 2.- onSignalingError si no fue exitosa
         console.log('CC --> Ejecutando CrearOfertaSDP. Creando oferta...');
-        //ui.agregaTextoLog("Ejecutando CrearOfertaSDP. Creando oferta...");
         
-        console.log('Recuperé al pc: ');
-        console.log(peerConnections[clienteDestino]);
+        console.log('Recuperé al pc ');
         var pc = peerConnections[clienteDestino];
         
         //Se crea la ofertaSDP y se envía
@@ -393,7 +397,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
             //Se se tiene éxito, se asocia al pc y se envía
             //Esperaríamos que tuviera el tipo "offer"
             pc.setLocalDescription(sdp),
-        EnviarMensaje("MESSAGE", clienteDestino, sdp)
+            EnviarMensaje("MESSAGE", clienteDestino, sdp)
         },
      function (e) {
             //Si se tiene un error, se manda al log
@@ -431,7 +435,58 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         }
     };
     
+
+
+
+
+
+CrearTonoMarcando =
+    function () {
+        //galería de tonos disponibles
+        var tonoRinging = 'assets/tonos/ringing.wav';
+        var tonoOcupado = 'assets/tonos/tonoOcupado.wav';
+        var tonoLlamada = 'assets/tonos/tonoLlamada.wav';
+        
+        //carga asíncrona en un buffer
+        var request = new XMLHttpRequest();
+        request.open('GET', tonoLlamada, true);
+        request.responseType = 'arraybuffer';
+        
+        request.onload = function () {
+            console.log('Guardando en buffer...');
+            context.decodeAudioData(request.response, function (buffer) {
+                bufferAudio = buffer;
+                console.log("Acabé de cargar el buffer ...");
+                EnviarTono();
+            });
+        }
+        request.send();
+    };
     
+    EnviarTono =
+    function () {
+       //Establecer como flujo local
+       var source = context.createBufferSource();
+        source.buffer = bufferAudio;
+        source.loop = true;
+        source.connect(context.destination);
+        
+        // crear un destino para el navegador web remoto
+        var remote = context.createMediaStreamDestination();
+        console.log(remote);
+
+        // conectar el destino remoto a la fuente de audio
+        source.connect(remote);
+        flujoLocal = remote.stream;
+	console.log("Tono de invitación cargado");
+    };
+    
+
+
+
+
+
+
     /*
      * Suscribe el socket de este usuario web a eventos para
      * gestionar la conexión
@@ -449,21 +504,8 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         socket.on("OK", function (usuario) {
             console.log("(OK): " + usuario);
             idUsuario = usuario;
-            
-            /**if (usuario == 3) {
-                isIniciaLlamada = true;
-                console.log("Primer usuario en la sala ....");
-            }
-            else**/
-                isCanalListo = true;
-            
-            //ui.NuevoUsuario(idUsuario, nombreUsuario);
-            //ui.RedireccionarSala();
-            //ui.EstablecerMiNombre(nombreUsuario);
-            
-            // Llama al método getUserMedia()
-            //navigator.getUserMedia(constraints, AdquirirAudioVideoLocal, AdquirirAudioVideoLocalError);
-            //console.log('CC -> Obteniendo flujos de usuario con las características: ', constraints)
+            isCanalListo = true;
+	    CrearTonoMarcando();
         });
         
         //Cuando reciba Service Unavailable
@@ -489,7 +531,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
             if (mensaje.contenido.type == 'offer') {
                 console.log("(MESSAGE) type: offer de (" + mensaje.de + ")");
                 // Esta es una oferta SDP
-                // Si no soy q//uien inició la llamada, y aún no se
+                // Si no soy quien inició la llamada, y aún no se
                 // ha arrancado la comunicación, se debe revisar el estado del canal
                 if (!isIniciaLlamada && !isIniciado[mensaje.de]) {
                     RevisarStatusCanal(mensaje.de);
@@ -498,8 +540,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
                 // Se guarda la oferta SDP como descripción remota
                 // Esta función es de la API de WebRTC
                 // Después, se envía una respuesta 
-                console.log('Recuperé el pc: ');
-                console.log(peerConnections[mensaje.de]);
+                console.log('Recuperé el pc ');
                 peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
                 console.log('CC -> Se guardó la oferta SDP');
                 CrearRespuestaSDP(mensaje.de);
@@ -507,8 +548,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
             } else if (mensaje.contenido.type == 'answer' && isIniciado[mensaje.de]) {
                 // Esta es una respuesta SDP
                 // Se guarda como una descripción remota
-                console.log('Recuperé el pc: ');
-                console.log(peerConnections[mensaje.de]);
+                console.log('Recuperé el pc ');
                 peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
                 console.log('CC -> Se guardó la respuesta SDP');
 
@@ -521,9 +561,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
                     sdpMLineIndex: mensaje.contenido.label,
                     candidate: mensaje.contenido.candidate
                 });
-                console.log('Recuperé el pc: ');
-                console.log(peerConnections[mensaje.de]);
-                
+                console.log('Recuperé el pc ');
                 peerConnections[mensaje.de].addIceCandidate(candidate);
                 console.log('CC -> Se agregó al candidato ICE');
 
@@ -531,14 +569,14 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
             else {
 
 		//Si el contenido del mensaje comienza en 9, es porque quieren marcar
-		if(mensaje.contenido.charAt(0)=="9"){
+		if(mensaje.contenido.type=="call"){
 			console.log("Se desea marcar al número "+mensaje.contenido);
-			
+			numTel=mensaje.contenido.number;
+			EnviarMensaje("INVITE", idUsuario, nombreUsuario);
 		}
 		else{
-			//Un nuevo usuario llegó a la sala. Se registra su id y su nombre en la //ui
+			//Un nuevo usuario llegó a la sala
                 	console.log("CC -> Ha llegado un nuevo usuario: " + mensaje.contenido);
-                	//ui.NuevoUsuario(mensaje.de, mensaje.contenido);
                 	isCanalListo = true;
                 	isIniciaLlamada = true;
                 	console.log("CC -> Existe otro participante en la sala: (" + mensaje.contenido + "), con id:(" + mensaje.de + "). El canal está listo: (isCanalListo: " + isCanalListo + "), y ahora es iniciador de llamada: " + isIniciaLlamada + ")");
@@ -556,7 +594,6 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
                 var pc = peerConnections[clienteDestino];
                 if (pc) pc.close();
                 pc = null;
-                //ui.RemoverFlujo(clienteDestino);
             }
         });
     }

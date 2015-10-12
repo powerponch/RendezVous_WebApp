@@ -47,7 +47,7 @@ var constraints = {
 
 //Variables de configuración de la instancia
 var puerto = "3000";
-var ip = "127.0.0.1";
+var ip = "10.100.0.5";
 var usuarioWeb = null;
 
 /*

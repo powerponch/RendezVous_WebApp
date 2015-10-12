@@ -77,24 +77,37 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     AdquirirAudioVideoLocal =
     function (stream) {
         console.log("CC --> Adquiriendo audio y video locales");
-        ui.agregaTextoLog("Adquiriendo audio y video locales");
+        ui.agregaTextoLog("Obteniendo acceso a tu cámara y micrófono ...");
+
 	//Audio + video para transmitir con otros usuarios Web
         flujoLocal = stream;
-	console.log("El flujo local audio+ video es: ");
-	console.log(flujoLocal);
-
-	//Remover el track de video para almacenar solo el audio
-	audioLocal=stream;
-	var videoTrack = audioLocal.getVideoTracks();
-	if (videoTrack.length > 0) audioLocal.removeTrack(videoTrack[0]);
-	console.log("El flujo local audio solamente es: ");
-	console.log(audioLocal);
         
         //Mostrar audio y video
-        ui.MostrarFlujo(idUsuario, stream);
+        ui.MostrarFlujo(idUsuario,flujoLocal,true);
         EnviarMensaje("INVITE", idUsuario, nombreUsuario);
     };
     
+
+    /*
+     * Obtiene el flujo multimedia de solo voz
+     */ 
+    AdquirirAudioLocal =
+    function (stream) {
+        console.log("CC --> Adquiriendo audio y video locales");
+        ui.agregaTextoLog("Obteniendo acceso a tu cámara y micrófono ...");
+
+	//Audio para transmitir con el usuario pbx
+        audioLocal = stream;
+
+	var numTel= ui.LlamarTelefono();
+	console.log("El número a marcar es: "+numTel);
+	isCanalListo=true;
+	isIniciaLlamada=true;
+
+	//El mensaje se envía al UsuarioPBX por medio del servidor de señalizacion
+	var contenido= {type:"call", number:numTel};
+	EnviarMensaje("MESSAGE",3,contenido);
+    };
     
     /*
      * Obtiene el flujo multimedia local e invoca el
@@ -120,14 +133,18 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
      *Realiza una llamada telefónica enviando un mensaje al servidor de señalización
      *Mediante la UI obtiene el número a marcar y lo envía en el mensaje
      */
-     this.RealizarLlamadaTelefonica(){
+     this.RealizarLlamadaTelefonica=
+	function(){
 	console.log("Realizando llamada telefónica ....");
-	var numTel= ui.LlamarTelefono();
-	console.log("El número a marcar es: "+numTel);
-	isCanalListo=true;
-	isIniciaLlamada=true;
-	//El mensaje se envía al UsuarioPBX por medio del servidor de señalizacion
-	EnviarMensaje("MESSAGE",3,numTel);
+	ui.agregaTextoLog("Realizando llamada telefónica ....");
+
+	var constraintsAudio = {
+	    "audio": true,
+	    "video": false
+	}
+
+	// Llama al método getUserMedia()
+        navigator.getUserMedia(constraintsAudio, AdquirirAudioLocal, AdquirirAudioVideoLocalError);
      };
     
     /*
@@ -188,7 +205,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         //Si recibo el flujo del otro usuario
         pc.onaddstream = function (event) {
             console.log('Recibí un flujo remoto de: ' + clienteDestino);
-            ui.MostrarFlujo(clienteDestino, event.stream);
+            ui.MostrarFlujo(clienteDestino, event.stream, false);
             peers[clienteDestino] = event.stream;
             console.log(peers[clienteDestino]);
         }
@@ -320,21 +337,16 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         socket.on("OK", function (usuario) {
             console.log("(OK): " + usuario);
             idUsuario = usuario;
-            
-            /**if (usuario == 0) {
-                isIniciaLlamada = true;
-                console.log("Primer usuario en la sala ....");
-            }
-            else**/
-                isCanalListo = true;
+
+            isCanalListo = true;
             
             ui.NuevoUsuario(idUsuario, nombreUsuario);
             ui.RedireccionarSala();
             ui.EstablecerMiNombre(nombreUsuario);
-            
+            ui.agregaTextoLog("Bienvenido(a) a la sala ");
+
             // Llama al método getUserMedia()
             navigator.getUserMedia(constraints, AdquirirAudioVideoLocal, AdquirirAudioVideoLocalError);
-            console.log('CC -> Obteniendo flujos de usuario con las características: ', constraints)
         });
         
         //Cuando reciba Service Unavailable
@@ -369,8 +381,6 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                 // Se guarda la oferta SDP como descripción remota
                 // Esta función es de la API de WebRTC
                 // Después, se envía una respuesta 
-                console.log('Recuperé el pc: ');
-                console.log(peerConnections[mensaje.de]);
                 peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
                 console.log('CC -> Se guardó la oferta SDP');
                 CrearRespuestaSDP(mensaje.de);
@@ -378,8 +388,6 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             } else if (mensaje.contenido.type == 'answer' && isIniciado[mensaje.de]) {
                 // Esta es una respuesta SDP
                 // Se guarda como una descripción remota
-                console.log('Recuperé el pc: ');
-                console.log(peerConnections[mensaje.de]);
                 peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
                 console.log('CC -> Se guardó la respuesta SDP');
 
@@ -393,7 +401,6 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                     candidate: mensaje.contenido.candidate
                 });
                 console.log('Recuperé el pc: ');
-                console.log(peerConnections[mensaje.de]);
                 
                 peerConnections[mensaje.de].addIceCandidate(candidate);
                 console.log('CC -> Se agregó al candidato ICE');
@@ -401,9 +408,9 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             }
             else {
 		//Si el contenido del mensaje comienza en 9, es porque quieren marcar
-		if(mensaje.contenido.charAt(0)=="9"){
+		if(mensaje.contenido.type=="call"){
 			console.log("Llamada en progreso a: "+mensaje.contenido);
-			ui.agregaTextoLog("Llamada en progreso del número: "+mensaje.contenido.substring(1,mensaje.contenido.length));
+			ui.agregaTextoLog("Llamada en progreso del número: "+mensaje.contenido.number);
 
 			//bloquear mi softphone para que no haga llamadas
 			ui.BloquearSoftphone();	

@@ -137,7 +137,7 @@ function InterfazGrafica() {
             '		</div>',
             '		<div id="icono">',
             '			<img id="iconLlamada" src="assets/images/phoneResting.png" style="width:35%;margin-left:-8%;margin-top: -30px;">',
-	    '			<video id="mosaicoLlamada" style="background-color:#A4A4A4; width:10px; height:10px" autoplay></video>',
+	    '			<audio id="mosaicoLlamada" style="background-color:#A4A4A4; width:10px; height:10px" autoplay></audio>',
             '		</div>',
             '		<div id="telefono" class="softphone">',
             '			<div id="phone">',
@@ -236,44 +236,66 @@ function InterfazGrafica() {
         logTexto = document.getElementById('logTexto');
     };
     
+
+
+
     /*
      * Muestra en el mosaico correspondiente el flujo local o remoto
      * @idUsuario: Valor numérico asignado por el servidor
      * @stream: Flujo multimedia
      */ 
     this.MostrarFlujo = 
-    function (idUsuario, stream) {
+    function (idUsuario, stream, propio) {
         
         switch (idUsuario) {
             case 0:
                 attachMediaStream(mosaicoVideo1, stream);
                 mosaicoNombre1.innerHTML = _participantes[idUsuario];
-                mosaicoVideo1.volume += 1;
-                console.log('(UI) ---------> Te pinté en localVideo');
+		if(propio)
+                	mosaicoVideo1.volume -= 1;
+		else
+			mosaicoVideo1.volume = 1;
+                console.log('(UI) ---------> Usuario 0 asignado en el mosaico 1');
                 break;
+
             case 1:
                 attachMediaStream(mosaicoVideo2, stream);
                 mosaicoNombre2.innerHTML = _participantes[idUsuario];
-                mosaicoVideo2.volume += 1;
-                console.log('(UI) ---------> Te pinté en remoteVideo');
+		if(propio)
+                	mosaicoVideo2.volume -= 1;
+		else
+			mosaicoVideo2.volume = 1;
+                console.log('(UI) ---------> Usuario 1 asignado en el mosaico 2');
                 break;
+
             case 2:
                 attachMediaStream(mosaicoVideo3, stream);
                 mosaicoNombre3.innerHTML = _participantes[idUsuario];
-                mosaicoVideo3.volume += 1;
+		if(propio)
+                	mosaicoVideo3.volume -= 1;
+		else
+			mosaicoVideo3.volume = 1;
                 console.log('(UI) ---------> Te pinté en remoteVideo2');
                 break;
+
 	    case 3:
-		console.log("El audio recibido del usuario pbx es:"); 
-		console.log(stream);
-		attachMediaStream(mosaicoLlamada, stream);
-		mosaicoLlamada.volume += 1;
-		$('mosaicoLlamada').css('display', 'none');
-		document.getElementById("iconLlamada").src="assets/images/phoneCalling.png";
+		console.log("El audio recibido del usuario pbx es:");
+                console.log(stream);
+                attachMediaStream(mosaicoLlamada, stream);
+                if (propio)
+                    mosaicoLlamada.volume -= 1;
+                else {
+                    console.log("Volumen de pbx activado");
+                    mosaicoLlamada.volume = 1;
+                }
+                document.getElementById("iconLlamada").src = "assets/images/phoneCalling.png";
 		break;
         }
     };
     
+
+
+
     /*
      *Agrega texto al cuadro de log de la página
      */
@@ -324,18 +346,20 @@ function InterfazGrafica() {
     * Obtiene el número ingresado en el softphone
     * @return numTel: Número telefónico ingresado en el softphone
     */
-    this.LlamarTelefono(){
+    this.LlamarTelefono=
+	function(){
 	console.log("Obteniendo el número del softphone ...");
 	var numTel = document.getElementById('pantalla');
 	console.log(numTel.value);
-	return "9"+numTel.value;
+	return numTel.value;
     };
 
 
     /*
      *Bloquea el softphone
      */
-     this.BloquearSoftphone(){
+     this.BloquearSoftphone=
+	function(){
 	console.log("Bloqueando teléfono ...");
 	document.getElementById('telefono').className='softphone2';
 	
@@ -345,7 +369,8 @@ function InterfazGrafica() {
     /*
      *Desbloquea el softphone
      */
-     this.BloquearSoftphone(){
+     this.BloquearSoftphone=
+	function(){
 	console.log("Desbloqueando teléfono ...");
 	document.getElementById('telefono').className='softphone';
 	
