@@ -18,7 +18,7 @@ function InterfazGrafica() {
     var mosaicoLlamada;
     var logTexto;
     
-    console.log("Interfaz gráfica registrada");
+    console.log("(UI) ---------> Interfaz gráfica registrada");
     
     
     /*
@@ -39,13 +39,17 @@ function InterfazGrafica() {
         }
     };
     
+
+
     /*
      * Establece en el banner de la página el nombre de este usuario
      */ 
     this.EstablecerMiNombre = 
     function (nombre) {
-        document.getElementById("nombreLocal").innerHTML = "¡ Bienvenido " + nombre + " !";
+        document.getElementById("nombreLocal").innerHTML = "¡ Bienvenido(a) " + nombre + " !";
     };
+
+
     
     /*
      * Registra el id y nombre de un usuario para que 
@@ -59,13 +63,15 @@ function InterfazGrafica() {
         console.log("(UI) ---------> Se ha registrado en la UI: (" + idUsuario + ") " + _participantes[idUsuario]);
     };
     
+
+
     /*
      * Carga el html de la sala de videoconferencia
      * Invoca el método de la interfaz gráfica que reconoce el DOM de los elementos
      */ 
     this.RedireccionarSala = 
     function () {
-        console.log("Me estoy redireccionando ...");
+        console.log("(UI) ---------> Redireccionando a la sala de videoconferencia ...");
         var html = [
             '<!DOCTYPE html>',
             '<html lang="es">',
@@ -188,7 +194,7 @@ function InterfazGrafica() {
             '				</div>',
             '				<div id="buttons">',
             '                    <img id="btnSend" src="assets/images/btnSend2.png" style="width:30%"; onmouseover="hoverVerde(this);" onmouseout="unhoverVerde(this);" onclick="llamarTel();"/>',
-            '                    <img id="btnEnd" src="assets/images/btnEnd2.png" style="width:30%"; onmouseover="hoverRojo(this);" onmouseout="unhoverRojo(this);"/>',
+            '                    <img id="btnEnd" src="assets/images/btnEnd2.png" style="width:30%"; onmouseover="hoverRojo(this);" onmouseout="unhoverRojo(this);" onclick="colgarTel();"/>',
             '				</div>',
             '			</div>',
             '		</div>',
@@ -255,7 +261,7 @@ function InterfazGrafica() {
                 	mosaicoVideo1.volume -= 1;
 		else
 			mosaicoVideo1.volume = 1;
-                console.log('(UI) ---------> Usuario 0 asignado en el mosaico 1');
+                console.log('(UI) ---------> Usuario asignado en el mosaico 1');
                 break;
 
             case 1:
@@ -265,7 +271,7 @@ function InterfazGrafica() {
                 	mosaicoVideo2.volume -= 1;
 		else
 			mosaicoVideo2.volume = 1;
-                console.log('(UI) ---------> Usuario 1 asignado en el mosaico 2');
+                console.log('(UI) ---------> Usuario asignado en el mosaico 2');
                 break;
 
             case 2:
@@ -275,20 +281,17 @@ function InterfazGrafica() {
                 	mosaicoVideo3.volume -= 1;
 		else
 			mosaicoVideo3.volume = 1;
-                console.log('(UI) ---------> Te pinté en remoteVideo2');
+                console.log('(UI) ---------> Usuario asignado en el mosaico 3');
                 break;
 
 	    case 3:
-		console.log("El audio recibido del usuario pbx es:");
-                console.log(stream);
                 attachMediaStream(mosaicoLlamada, stream);
                 if (propio)
                     mosaicoLlamada.volume -= 1;
-                else {
-                    console.log("Volumen de pbx activado");
+                else 
                     mosaicoLlamada.volume = 1;
-                }
                 document.getElementById("iconLlamada").src = "assets/images/phoneCalling.png";
+		console.log('(UI) ---------> Audio de PBX asignado al mosaico oculto');
 		break;
         }
     };
@@ -301,9 +304,22 @@ function InterfazGrafica() {
      */
     this.agregaTextoLog = 
     function (TextoLinea) {
-        logTexto.innerHTML += "<p>" + TextoLinea + "</p>";
+	var nuevoTexto= document.createTextNode(TextoLinea+'\n');
+	var saltoLinea= document.createElement("br");
+	var saltoLinea2= document.createElement("br");
+
+	logTexto.insertBefore(saltoLinea2,logTexto.childNodes[0]);
+	logTexto.insertBefore(saltoLinea,logTexto.childNodes[0]);
+	logTexto.insertBefore(nuevoTexto,logTexto.childNodes[0]);
+	logTexto.insertBefore(saltoLinea2,logTexto.childNodes[0]);
+	logTexto.insertBefore(saltoLinea,logTexto.childNodes[0]);
+	logTexto.insertBefore(saltoLinea2,logTexto.childNodes[0]);
+	logTexto.insertBefore(saltoLinea,logTexto.childNodes[0]);
+	//logTexto.innerHTML += "<p>" + TextoLinea + "</p>";
     };
     
+
+
     /*
      * Borra los flujos externos de un mosaico
      * @idUsuario: Valor numérico asignado por el servidor
@@ -339,6 +355,7 @@ function InterfazGrafica() {
 		document.getElementById("iconLlamada").src="assets/images/phoneResting.png";
                 break;
         }
+		console.log("(UI) ---------> Flujo removido");
     };
 
 
@@ -348,10 +365,14 @@ function InterfazGrafica() {
     */
     this.LlamarTelefono=
 	function(){
-	console.log("Obteniendo el número del softphone ...");
+	console.log("(UI) ---------> Obteniendo el número del softphone ...");
 	var numTel = document.getElementById('pantalla');
-	console.log(numTel.value);
-	return numTel.value;
+	console.log("(UI) ---------> El número es: "+numTel.value);
+	
+	if(numTel.value.length<1)
+		return null;
+	else
+		return numTel.value;
     };
 
 
@@ -360,7 +381,7 @@ function InterfazGrafica() {
      */
      this.BloquearSoftphone=
 	function(){
-	console.log("Bloqueando teléfono ...");
+	console.log("(UI) ---------> Softphone bloqueado");
 	document.getElementById('telefono').className='softphone2';
 	
      };
@@ -371,7 +392,7 @@ function InterfazGrafica() {
      */
      this.BloquearSoftphone=
 	function(){
-	console.log("Desbloqueando teléfono ...");
+	console.log("(UI) ---------> Softphone desbloqueado");
 	document.getElementById('telefono').className='softphone';
 	
      };

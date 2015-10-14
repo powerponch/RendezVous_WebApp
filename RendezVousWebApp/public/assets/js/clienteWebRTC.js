@@ -135,6 +135,16 @@ function llamarTel(){
 }
 
 
+/*
+*Al presionar el botón END del softphone, se envía un mensaje al servidor para
+*colgar la llamada actual. Si no hay una llamada en progeso, no sucede nada.
+*/
+function colgarTel(){
+	console.log("Se está colgando la llamada ....");
+	usuarioWeb.ColgarLlamadaTelefonica();
+}
+
+
 
 
 

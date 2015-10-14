@@ -155,11 +155,17 @@ function ServidorSenalizacion(app) {
             
             //4.- Salida del usuario de la sala
             socket.on('BYE', function (mensaje) {
-                _participantes[mensaje].nombreUsuario = "";
-                _participantes[mensaje].socket = null;
-                socket.leave(_room);
-                _numClientes--;
-                console.log("(BYE) " + mensaje + " ha abandonado la sala");
+
+		//No se puede eliminar a UsuarioPBX de la sala
+		if(mensaje!=3){
+			_participantes[mensaje].nombreUsuario = "";
+                	_participantes[mensaje].socket = null;
+                	socket.leave(_room);
+                	_numClientes--;
+                	console.log("SS ------------> (BYE) " + mensaje + " ha abandonado la sala");
+		}
+                else
+			console.log("SS ------------> (BYE) Se ha concluído una llamada telefónica");
                 _io.sockets.in(_room).emit('BYE', mensaje);
             });
         });

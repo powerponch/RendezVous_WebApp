@@ -30,27 +30,32 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     //Inicialización del socket del usuario web
     try {
         socket = io.connect(dirServidor + ":" + puerto);
-        console.log("CC -> Socket creado: " + socket + " en la dirección: " + dirServidor + ":" + puerto);
+        console.log("CC ---> Socket creado y escuchando en la dirección: " + dirServidor + ":" + puerto);
         
         //Envío del mensaje REGISTER
         socket.emit('REGISTER', nombreUsuario);
         console.log("CC ---> (REGISTER) " + nombreUsuario);
     } catch (err) {
-        console.error("NO FUE POSIBLE CONECTAR CON EL SERVIDOR DE SEÑALIZACIÓN " + err);
+        console.error("CC ---> NO FUE POSIBLE CONECTAR CON EL SERVIDOR DE SEÑALIZACIÓN " + err);
     }
     
+
+
     /*
      *Vuelve a intentar el registro del usuario web con un nuevo nombre
      */
     this.VolverARegistrar =
     function (nombre) {
         nombreUsuario = nombre;
+
         //Envío del mensaje REGISTER
         socket.emit('REGISTER', nombreUsuario);
         console.log("CC ---> (REGISTER) " + nombreUsuario);
     };
     
     
+
+
     /*
      *Envía un mensaje con el formato [cabecera][contenido {de:,para:,mensaje:}]
      */
@@ -61,22 +66,27 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     };
     
     
+
+
     /*
      * Envía un mensaje de salida de la sala al servidor
      */ 
     this.SalirSala =
     function () {
-        console.log("CC -> Saliendo de la sala ...");
+        console.log("CC ---> Saliendo de la sala ...");
         socket.emit("BYE", idUsuario);
     };
     
+
+
+
     /*
      * Obtiene el flujo multimedia local e invoca el
      * objeto de UI para mostrarlo en la interfaz
      */ 
     AdquirirAudioVideoLocal =
     function (stream) {
-        console.log("CC --> Adquiriendo audio y video locales");
+        console.log("CC ---> Adquiriendo audio local");
         ui.agregaTextoLog("Obteniendo acceso a tu cámara y micrófono ...");
 
 	//Audio + video para transmitir con otros usuarios Web
@@ -88,19 +98,20 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     };
     
 
+
+
     /*
      * Obtiene el flujo multimedia de solo voz
      */ 
     AdquirirAudioLocal =
     function (stream) {
-        console.log("CC --> Adquiriendo audio y video locales");
-        ui.agregaTextoLog("Obteniendo acceso a tu cámara y micrófono ...");
+        console.log("CC ---> Adquiriendo audio y video locales");
+        ui.agregaTextoLog("Obteniendo acceso a tu micrófono ...");
 
 	//Audio para transmitir con el usuario pbx
         audioLocal = stream;
 
 	var numTel= ui.LlamarTelefono();
-	console.log("El número a marcar es: "+numTel);
 	isCanalListo=true;
 	isIniciaLlamada=true;
 
@@ -109,25 +120,31 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 	EnviarMensaje("MESSAGE",3,contenido);
     };
     
+
+
+
     /*
      * Obtiene el flujo multimedia local e invoca el
      * objeto de UI para mostrarlo en la interfaz
      */ 
     AdquirirAudioVideoLocalError =
     function (error) {
-        console.error('Error de navigator.getUserMedia: ', error);
-       ui.agregaTextoLog('Error de navigator.getUserMedia: ', error);
+        console.error('CC ---> Error de navigator.getUserMedia: ', error);
+       ui.agregaTextoLog('(ERROR) Al parecer no concediste permisos a tu micrófono y/o cámara web', error);
     };
     
-    
+   
+ 
+
     /*
      * Función que se ejecuta al remover flujos remotos
      */ 
     QuitarPeer = 
     function (event) {
-        console.log('CC -> Se removió el flujo remoto ' + event);
+        console.log('CC ---> Se removió el flujo remoto');
     }
     
+
 
     /*
      *Realiza una llamada telefónica enviando un mensaje al servidor de señalización
@@ -135,7 +152,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
      */
      this.RealizarLlamadaTelefonica=
 	function(){
-	console.log("Realizando llamada telefónica ....");
+	console.log("CC ---> Realizando llamada telefónica ....");
 	ui.agregaTextoLog("Realizando llamada telefónica ....");
 
 	var constraintsAudio = {
@@ -143,9 +160,31 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 	    "video": false
 	}
 
+	var numTel= ui.LlamarTelefono();
+	if(numTel==null)
+		alert("(ERROR) Ingrese un número telefónico válido");
 	// Llama al método getUserMedia()
-        navigator.getUserMedia(constraintsAudio, AdquirirAudioLocal, AdquirirAudioVideoLocalError);
+	else
+        	navigator.getUserMedia(constraintsAudio, AdquirirAudioLocal, AdquirirAudioVideoLocalError);
      };
+
+
+	
+     /*
+      *Función que envía un mensaje al UsuarioPBX para finalizar la llamada actual
+      */
+     this.ColgarLlamadaTelefonica=
+	function(){
+	if(isIniciado[3]==true){
+		console.log("CC ---> Colgando llamada telefónica .....");
+		ui.agregaTextoLog("Colgando la llamada telefónica actual ...");
+		var contenido={type:"hangup"};
+	
+		EnviarMensaje("MESSAGE", 3, contenido);
+	}
+     };
+
+
     
     /*
      * Crea una instancia de PeerConnection entre dos usuarios
@@ -153,8 +192,8 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
      */ 
     CrearPeerConnection =
     function (clienteDestino) {
-        console.log("CC --> Ejecutando función CrearPeerConnection");
-        ui.agregaTextoLog("Ejecutando función CrearPeerConnection");
+        console.log("CC ---> Ejecutando función CrearPeerConnection");
+        ui.agregaTextoLog("Creando una conexión con el otro usuario ....");
         
         // Inicializa la variable pc, que será el PeerConnection con el otro usuario
         // 1.- Añade la configuración y las características
@@ -168,11 +207,11 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             pc = new RTCPeerConnection(pc_config, pc_constraints);
 	
 	    if(clienteDestino==3){
-		console.log("Agregando al peer connection solo audio ...");
+		console.log("CC ---> Agregando al peer connection solamente audio ...");
 		pc.addStream(audioLocal);
 	    }
 	    else{
-	        console.log("Agregando flujo completo: ");
+	        console.log("CC ---> Agregando al peer connection audio y video ...");
 		pc.addStream(flujoLocal);            
 	    }
             
@@ -189,25 +228,25 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                         candidate: event.candidate.candidate
                     });
                 } else {
-                    console.log('CC -> Fin de los candidatos');
+                    console.log('CC ---> Fin de los candidatos');
                 }
             }
             
-            console.log('\n\n\nCC -> Se creó la conexión RTCPeerConnnection con:\n' +
-                        '\t config:' + JSON.stringify(pc_config) + '\n' +
-                        '\t constraints:' + JSON.stringify(pc_constraints) + '\n');
+            console.log("CC ---> Se ha creado una conexión exitosamente");
+            ui.agregaTextoLog("Se ha creado una conexión exitosamente");
+
         } catch (e) {
-            console.log('Lo CC ->Falló al crear el PeerConnection, excepción: ' + e.message);
-            alert('No se pudo crear la conexión RTCPeerConnection');
+            console.log('CC ---> Falló al crear el PeerConnection, excepción: ' + e.message);
+            ui.agregaTextoLog('(ERROR) No se pudo crear la conexión con el otro usuario ... ');
             return;
         }
         
         //Si recibo el flujo del otro usuario
         pc.onaddstream = function (event) {
-            console.log('Recibí un flujo remoto de: ' + clienteDestino);
+            console.log('CC ---> Se ha recibido un flujo remoto de: ' + clienteDestino);
             ui.MostrarFlujo(clienteDestino, event.stream, false);
             peers[clienteDestino] = event.stream;
-            console.log(peers[clienteDestino]);
+            ui.agregaTextoLog("¡Hola!");
         }
         
         //Si debo remover el flujo del otro usuario
@@ -215,8 +254,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         
         //Almacenar el nuevo pc en el arreglo local
         peerConnections[clienteDestino] = pc;
-        console.log('He agregado en el arreglo peerConnections en la posicion: ' + clienteDestino + ' el pc:');
-        console.log(peerConnections[clienteDestino]);
+        console.log('CC ---> Se ha agregado el pc en el arreglo en la posicion: ' + clienteDestino);
     };
     
     
@@ -225,7 +263,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
      */ 
     OnSignalingError = 
     function (error) {
-        console.log('CC -> Fallo al crear la señalización : ' + error.name);
+        console.log('CC ---> Fallo al crear la señalización : ' + error.name);
        ui.agregaTextoLog('Fallo al crear la señalización : ' + error.name);
     };
     
@@ -239,10 +277,9 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         // Se pueden invocar las siguientes funciones después de crearse:
         // 1.- AgregarDescripcionLocal si fue exitosa la creación
         // 2.- onSignalingError si no fue exitosa
-        console.log('CC --> Ejecutando CrearOfertaSDP. Creando oferta...');
-        ui.agregaTextoLog("Ejecutando CrearOfertaSDP. Creando oferta...");
-        
-        console.log('Recuperé al pc: ');
+        console.log('CC ---> Creando oferta SDP...');
+        ui.agregaTextoLog("Creando oferta SDP ....");
+
         console.log(peerConnections[clienteDestino]);
         var pc = peerConnections[clienteDestino];
         
@@ -270,10 +307,8 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
      */ 
     CrearRespuestaSDP =
     function (clienteDestino) {
-        console.log('Creando respuesta al otro usuario');
-        ui.agregaTextoLog("Creando respuesta al otro usuario");
-        console.log('Recuperé al pc: ');
-        console.log(peerConnections[clienteDestino]);
+        console.log('CC ---> Creando respuesta al otro usuario');
+        ui.agregaTextoLog("Creando respuesta para el usuario remoto");
         var pc = peerConnections[clienteDestino];
         
         //Se crea la ofertaSDP y se envía
@@ -300,17 +335,17 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
      */ 
     RevisarStatusCanal = 
     function (clienteDestino) {
-        console.log("CC --> Ejecutando función RevisarStatusCanal");
-        console.log("CC -> Banderas: isIniciado= " + isIniciado[clienteDestino] + ", isCanalListo= " + isCanalListo + "isIniciaLlamada= " + isIniciaLlamada);
+        console.log("CC ---> Ejecutando función RevisarStatusCanal");
+        console.log("CC ---> Banderas: isIniciado= " + isIniciado[clienteDestino] + ", isCanalListo= " + isCanalListo + "isIniciaLlamada= " + isIniciaLlamada);
         
         // Si el canal está listo, se tienen los flujos locales pero no se ha iniciado la llamada,
         // es necesario crear un PeerConnection para comenzar la negociación WebRTC
         if (!isIniciado[clienteDestino] && typeof flujoLocal != 'undefined' && isCanalListo) {
-            console.log("CC -> El canal está listo, se tienen los flujos locales, pero no se ha iniciado la llamada");
+            console.log("CC ---> Procediendo a crear un PeerConnection por primera vez ....");
             
             CrearPeerConnection(clienteDestino);
             isIniciado[clienteDestino] = true;
-            console.log("CC -> Se ha creado un PeerConnection con el otro usuario (isIniciado: " + isIniciado[clienteDestino] + ")");
+            console.log("CC ---> Se ha creado un PeerConnection con el otro usuario (isIniciado: " + isIniciado[clienteDestino] + ")");
             
             // Si yo inicié se ejecuta la función CrearO fertaSDP
             if (isIniciaLlamada) {
@@ -343,7 +378,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             ui.NuevoUsuario(idUsuario, nombreUsuario);
             ui.RedireccionarSala();
             ui.EstablecerMiNombre(nombreUsuario);
-            ui.agregaTextoLog("Bienvenido(a) a la sala ");
+            ui.agregaTextoLog("Bienvenido(a) a la sala");
 
             // Llama al método getUserMedia()
             navigator.getUserMedia(constraints, AdquirirAudioVideoLocal, AdquirirAudioVideoLocalError);
@@ -356,7 +391,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         
         //Cuando reciba INVITE
         socket.on("INVITE", function (mensaje) {
-            console.log("(INVITE)");
+            console.log("CC ---> (INVITE)");
             ui.agregaTextoLog("(INVITE)");
             console.log(mensaje);
             RevisarStatusCanal(mensaje.de);
@@ -364,13 +399,13 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
         
         //Cuando reciba MESSAGE
         socket.on("MESSAGE", function (mensaje) {
-            console.log('(MESSAGE)');
+            console.log('CC ---> (MESSAGE)');
             console.log(mensaje);
             
             ui.NuevoUsuario(mensaje.de, mensaje.nombre);
 
             if (mensaje.contenido.type == 'offer') {
-                console.log("(MESSAGE) type: offer de (" + mensaje.de + ")");
+                console.log("CC ---> (MESSAGE) type: offer de (" + mensaje.de + ")");
                 // Esta es una oferta SDP
                 // Si no soy quien inició la llamada, y aún no se
                 // ha arrancado la comunicación, se debe revisar el estado del canal
@@ -382,14 +417,14 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                 // Esta función es de la API de WebRTC
                 // Después, se envía una respuesta 
                 peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
-                console.log('CC -> Se guardó la oferta SDP');
+                console.log('CC ---> Se guardó la oferta SDP');
                 CrearRespuestaSDP(mensaje.de);
         								 
             } else if (mensaje.contenido.type == 'answer' && isIniciado[mensaje.de]) {
                 // Esta es una respuesta SDP
                 // Se guarda como una descripción remota
                 peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
-                console.log('CC -> Se guardó la respuesta SDP');
+                console.log('CC ---> Se guardó la respuesta SDP');
 
             } else if (mensaje.contenido.type == 'candidate' && isIniciado[mensaje.de]) {
                 // Llega candidato de ICE para acceder a la IP privada	
@@ -400,17 +435,16 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                     sdpMLineIndex: mensaje.contenido.label,
                     candidate: mensaje.contenido.candidate
                 });
-                console.log('Recuperé el pc: ');
                 
                 peerConnections[mensaje.de].addIceCandidate(candidate);
-                console.log('CC -> Se agregó al candidato ICE');
+                console.log('CC ---> Se agregó al candidato ICE');
 
             }
             else {
 		//Si el contenido del mensaje comienza en 9, es porque quieren marcar
 		if(mensaje.contenido.type=="call"){
-			console.log("Llamada en progreso a: "+mensaje.contenido);
-			ui.agregaTextoLog("Llamada en progreso del número: "+mensaje.contenido.number);
+			console.log("CC ---> Llamada en progreso a: "+mensaje.contenido);
+			ui.agregaTextoLog("Llamada en progreso al número: "+mensaje.contenido.number);
 
 			//bloquear mi softphone para que no haga llamadas
 			ui.BloquearSoftphone();	
@@ -418,18 +452,17 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                 	isIniciaLlamada = true;		
 		}else{
 			//Un nuevo usuario llegó a la sala. Se registra su id y su nombre en la UI
-                	console.log("CC -> Ha llegado un nuevo usuario: " + mensaje.contenido);
+                	console.log("CC ---> Ha llegado un nuevo usuario a la sala: " + mensaje.contenido);
                 	ui.NuevoUsuario(mensaje.de, mensaje.contenido);
                 	isCanalListo = true;
                 	isIniciaLlamada = true;
-                	console.log("CC -> Existe otro participante en la sala: (" + mensaje.contenido + "), con id:(" + mensaje.de + "). El canal está listo: (isCanalListo: " + isCanalListo + "), y ahora es iniciador de llamada: " + isIniciaLlamada + ")");
 		}
             }
         });
         
         //Cuando reciba BYE
         socket.on("BYE", function (clienteDestino) {
-            console.log("(BYE): " + clienteDestino);
+            console.log("CC ---> (BYE): " + clienteDestino);
             if (isIniciado[clienteDestino]) {
                 //// Si el mensaje recibido es bye y ya se inició la llamada, el otro usuario colgó
                 isIniciaLlamada = false;
