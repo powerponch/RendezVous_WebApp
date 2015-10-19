@@ -19,8 +19,8 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
     var idUsuario;                      //Id del usuario asignado por el servidor
     var ui = new InterfazGrafica();     //Interfaz gráfica del usuario
     
-    var flujoLocal;                     //Flujo multimedia de este equipo de cómputo
-    var audioLocal;			//Audio de este equipo de cómputo para comunicarse con el usuario PBX
+    var flujoLocal;                //Flujo multimedia de este equipo de cómputo
+    var audioLocal;		//Audio de este equipo de cómputo para comunicarse con el usuario PBX
     var socket;                         //Socket del usuario para comunicarse
     var constraints;                    //Objeto JSON para definir si se usará audio y/o video
     var pc_config;                      //Configuración ICE para conexion p2p
@@ -105,7 +105,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
      */ 
     AdquirirAudioLocal =
     function (stream) {
-        console.log("CC ---> Adquiriendo audio y video locales");
+        console.log("CC ---> Adquiriendo audio local");
         ui.agregaTextoLog("Obteniendo acceso a tu micrófono ...");
 
 	//Audio para transmitir con el usuario pbx
@@ -118,6 +118,27 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 	//El mensaje se envía al UsuarioPBX por medio del servidor de señalizacion
 	var contenido= {type:"call", number:numTel};
 	EnviarMensaje("MESSAGE",3,contenido);
+    };
+
+
+
+    /*
+     * Obtiene el flujo multimedia de solo voz
+     */ 
+    AdquirirAudioRespuesta =
+    function (stream) {
+        console.log("CC ---> Adquiriendo audio local para responder");
+        ui.agregaTextoLog("Obteniendo acceso a tu micrófono ...");
+
+	//Audio para transmitir con el usuario pbx
+        audioLocal = stream;
+	console.log(audioLocal);
+
+	isCanalListo=true;
+	isIniciaLlamada=true;
+
+	//Teniendo el flujo local, se procede a revisar el status del canal
+	RevisarStatusCanal(3); 
     };
     
 
@@ -207,6 +228,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             pc = new RTCPeerConnection(pc_config, pc_constraints);
 	
 	    if(clienteDestino==3){
+		
 		console.log("CC ---> Agregando al peer connection solamente audio ...");
 		pc.addStream(audioLocal);
 	    }
@@ -394,6 +416,25 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
             console.log("CC ---> (INVITE)");
             ui.agregaTextoLog("(INVITE)");
             console.log(mensaje);
+
+	    //Si el INVITE viene del usuario pbx, y yo no inicié la llamada,
+	    //debo obtener mi flujo de audio primero
+	    if(mensaje.de==3 && typeof audioLocal == 'undefined'){
+		console.log("CC ---> El mensaje (INVITE) viene del usuario pbx y se debe obtener el audio local");
+
+		var constraintsAudio = {
+		    "audio": true,
+		    "video": false
+		}
+		navigator.getUserMedia(constraintsAudio, AdquirirAudioRespuesta, AdquirirAudioVideoLocalError);
+	    }
+	    //usuario pbx no puede iniciar una llamada
+            else if(mensaje.de==3){
+		isIniciaLlamada=true;
+		RevisarStatusCanal(mensaje.de);
+		}
+		else
+	    //Si el INVITE es de cualquier otro usuario, se procede a revisar el status del canal
             RevisarStatusCanal(mensaje.de);
         });
         

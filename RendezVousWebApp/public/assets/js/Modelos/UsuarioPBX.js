@@ -14,6 +14,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     var isIniciaLlamada = false;        //¿Soy yo q//uien inicia la llamada?
     var isIniciado = [];                //¿La llamada ya se inició?
     var isPeticionLlamada=false; 	//¿Me solicitaron hacer una llamada telefónica?
+    var isLlamadaEntrante=false;	//¿Está entrando una llamada?
     
     //Variables de sesión WebRTC
     var peers = new Array(2);           //Arreglo de flujos remotos
@@ -33,7 +34,6 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     var sesion_entrante = null;          //Sesión de una llamada entrante
     var numTel; 			 //Número que se va a marcar
     var vozEntrante=null; 		 //Voz entrante de una llamada telefónica
-  	
 
 
     //Variables de WebAudio
@@ -64,14 +64,22 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 
     
     /*
-     * Responde la llamada entrante
+     * Obtiene la sesión de la llamada entrante y suscribe los eventos para
+     * para el manejo de los flujos entrantes/salientes
      * @param e: Objeto RTCSession de la nueva sesión 
      */ 
-    ResponderLlamada =
+    CapturarLlamadaEntrante =
     function (e) {
         console.log("CPBX ---> La llamada telefónica viene de fuera ...");
         sesion_entrante = e.session;
-        
+
+	//En cuanto se reciba la notificación de que hay una llamada entrante, se debe 
+	//iniciar sesión WebRTC con los usuarios web de la sala de videoconferencia,
+	//ya que se deben obtener sus flujos multimedia para poder responder la llamada.
+	//Para ello, se activa la bandera y se envía un mensaje INVITE
+	isLlamadaEntrante=true; 
+	EnviarMensaje("INVITE", idUsuario, nombreUsuario);	
+
         //Suscripción a evento de recepción de flujo remoto de la sesión entrante
         sesion_entrante.on('addstream', function (e) {
             console.log("CPBX ---> Se ha recibido un flujo remoto ...");
@@ -80,18 +88,53 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 	    //(DE PRUEBA) mostrar el flujo entrante en la página web
             var theirMultimedia = document.getElementById('theirMultimedia');
             theirMultimedia = JsSIP.rtcninja.attachMediaStream(theirMultimedia, remote_stream);
+
+	    //reemplazar el tono mudo por el audio entrante en el flujo local
+	    //intercambio del flujo
+		vozEntrante=remote_stream;
+
+		//reemplazo del flujo de audio con la sala de videoconferencia
+		var i=0;
+		peerConnections.forEach(function(item){
+			if(isIniciado[i]){
+				console.log("CPBX ---> Reemplazando el flujo de "+i);
+				item.addStream(vozEntrante);
+				CrearOfertaSDP(i);
+			}
+			i++;
+		});
         });
         
         //Suscripción a evento de recepción de flujo remoto de la sesión entrante
         sesion_entrante.on('ended', function (e) {
             console.log("CPBX ---> Terminó la llamada entrante .....");
+	    ColgarLlamada();
         });
-        
-        //parámetros de la llamada
-        var options = { 'mediaConstraints': { 'audio': true, 'video': false } };
+    };
+
+
+
+
+    /*
+     * Responde la llamada entrante con los flujos especificados
+     * @param stream: Flujo de audio entrante de la sala de videoconferencia
+     */
+    ResponderLlamada=
+    function(stream){
+
+	//parámetros de la llamada
+	//Aquí se agregan los flujos de la videoconferencia
+	//Aquí se deberían adjuntar los tracks conforme lleguen...
+        var optiones = { 
+            'mediaConstraints': {
+                'audio': true,
+                'video': false
+            },
+	    'mediaStream':stream
+        };
         
         //atendiendo la llamada
-        sesion_entrante.answer(options);
+        sesion_entrante.answer(optiones);
     };
 
 
@@ -134,7 +177,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
             if (e.originator == "local") console.log("CPBX ---> Sesión RTC en progreso");
             
             //Si la llamada es foránea, se tiene qué responder de inmediato
-            if (e.originator == "remote") ResponderLlamada(e);
+            else if (e.originator == "remote") CapturarLlamadaEntrante(e);
         });
         
         //Registro del agente de usuario
@@ -196,6 +239,8 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         };
         
         //parámetros de la llamada
+	//Aquí se agregan los flujos de la videoconferencia
+	//Aquí se deberían adjuntar los tracks conforme lleguen...
         var options = {
             'eventHandlers': eventH,
             'mediaConstraints': {
@@ -234,6 +279,10 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 	//Reset de los flujos propios
 	vozEntrante=null;
 	remote_stream=null;
+
+	//Reset de las banderas
+	isPeticionLlamada=false;
+	isLlamadaEntrante=false;
 
 	//Reset de los flujos y peerConnections foráneos
 	peerConnections[0]=null;
@@ -326,7 +375,15 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 	    //attachMediaStream(theirMultimedia, event.stream);
 
 	    local_stream=event.stream;
-	    NuevaLlamada(); 
+	    
+	    if(isPeticionLlamada){
+		console.log('CPBX ---> El flujo se utilizará para realizar una llamada ...');
+	    	NuevaLlamada(); 
+		}
+	    else if(isLlamadaEntrante){
+		console.log('CPBX ---> El flujo se utilizará para responder una llamada ...');
+		ResponderLlamada(event.stream);
+		}
         }
         
         //Si debo remover el flujo del otro usuario
@@ -559,6 +616,7 @@ CrearTonoMarcando =
 		// Petición de marcación para el PBX
 		console.log("CPBX ---> Se desea marcar al número "+mensaje.contenido);
 		numTel="9"+mensaje.contenido.number;
+		isPeticionLlamada=true;
 		EnviarMensaje("INVITE", idUsuario, nombreUsuario);
 
 	    }else{
