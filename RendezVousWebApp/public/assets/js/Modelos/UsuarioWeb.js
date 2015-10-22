@@ -447,6 +447,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 
             if (mensaje.contenido.type == 'offer') {
                 console.log("CC ---> (MESSAGE) type: offer de (" + mensaje.de + ")");
+		console.log("isIniciaLlamada: "+isIniciaLlamada+" isIniciado: "+isIniciado[mensaje.de]);
                 // Esta es una oferta SDP
                 // Si no soy quien inició la llamada, y aún no se
                 // ha arrancado la comunicación, se debe revisar el estado del canal
@@ -481,9 +482,8 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                 console.log('CC ---> Se agregó al candidato ICE');
 
             }
-            else {
+            else if(mensaje.contenido.type=="call"){
 		//Si el contenido del mensaje comienza en 9, es porque quieren marcar
-		if(mensaje.contenido.type=="call"){
 			console.log("CC ---> Llamada en progreso a: "+mensaje.contenido);
 			ui.agregaTextoLog("Llamada en progreso al número: "+mensaje.contenido.number);
 
@@ -497,8 +497,7 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
                 	ui.NuevoUsuario(mensaje.de, mensaje.contenido);
                 	isCanalListo = true;
                 	isIniciaLlamada = true;
-		}
-            }
+			}
         });
         
         //Cuando reciba BYE

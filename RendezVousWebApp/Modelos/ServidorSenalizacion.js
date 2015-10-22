@@ -98,16 +98,6 @@ function ServidorSenalizacion(app) {
 		                }
 		                
 		                try {
-		                    //El primer cliente en unirse
-		                    if (_numClientes == 0) {
-		                        socket.join(_room);                                    //Se le agrega a la sala
-		                        socket.emit('OK', 0);                                       //Mensaje de que se creó la sala
-		                        console.log('SS ------------> Posición del cliente: ' + nuevoId);
-		                        _numClientes++;
-		                    } 
-
-		                    //Otros clientes en llegar a la sala
-		                    else {
 		                        //A todos quienes estén en la sala, se les envía un mensaje para notificar la llegada de un nuevo usuario
 		                        _io.sockets.in(_room).emit('MESSAGE', { de: nuevoId, para: '', contenido: nombreUsuario });
 		                        //Agregación del nuevo cliente         
@@ -115,7 +105,7 @@ function ServidorSenalizacion(app) {
 		                        socket.emit('OK', nuevoId);
 		                        console.log('SS ------------> Posición del cliente: ' + nuevoId);
 		                        _numClientes++;
-		                    }
+
 		                } catch (e) {
 		                    console.log('SS ------------> Error en el mensaje conectar: ' + e.message);
 		                    return;
@@ -136,10 +126,20 @@ function ServidorSenalizacion(app) {
 	
                 	//El mensaje va dirigido a un usuario en específico de la sala
                 	console.log('(MESSAGE) de: ' + mensaje.de + ' para: ' + mensaje.para + ' tipo: '+ mensaje.contenido.type);
-			//Aquí debería mandar un mensaje de llamada telefónica a los demás usuarios web
-			if(mensaje.contenido.type=="call")
-			console.log('SS ------------> Petición de '+mensaje.nombre+" para marcar al teléfono: "+mensaje.contenido.number);
 
+			//Aquí debería mandar un mensaje de llamada telefónica a los demás usuarios web
+			if(mensaje.contenido.type=="call"){
+				console.log('SS ------------> Petición de '+mensaje.nombre+" para marcar al teléfono: "+mensaje.contenido.number);
+				/**var i;
+				for(i=0; i<=3; i++){
+					if(i!=mensaje.de && _participantes[i].nombreUsuario!=""){
+						console.log("Enviando notificación de bloqueo a: "+i);
+						_participantes[i].socket.emit('MESSAGE', mensaje);
+					}
+				} **/
+				socket.broadcast.emit('MESSAGE', mensaje);			
+			}
+			else
                 	_participantes[mensaje.para].socket.emit('MESSAGE', mensaje);
             });
             

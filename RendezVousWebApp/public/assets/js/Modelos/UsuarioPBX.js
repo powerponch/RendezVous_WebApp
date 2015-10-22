@@ -15,7 +15,9 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     var isIniciado = [];                //¿La llamada ya se inició?
     var isPeticionLlamada=false; 	//¿Me solicitaron hacer una llamada telefónica?
     var isLlamadaEntrante=false;	//¿Está entrando una llamada?
-    
+    var cantParticipantes=0;		//¿Cuántos usuarios web están presentes en la sala?
+       
+
     //Variables de sesión WebRTC
     var peers = new Array(2);           //Arreglo de flujos remotos
     var peerConnections = new Array(2); //Arreglo de usuarios remotos
@@ -220,17 +222,17 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
                 console.log('CPBX ---> FLUJO REMOTO RECIBIDO');
 
                 // Mostrar el audio de la llamada 
-                myMultimedia = JsSIP.rtcninja.attachMediaStream(myMultimedia, remote_stream);
+                myMultimedia = JsSIP.rtcninja.attachMediaStream(myMultimedia, e.stream);
 		
 		//intercambio del flujo
-		vozEntrante=remote_stream;
+		//vozEntrante=remote_stream;
 
 		//reemplazo del flujo de audio con la sala de videoconferencia
 		var i=0;
 		peerConnections.forEach(function(item){
 			if(isIniciado[i]){
 				console.log("CPBX ---> Reemplazando el flujo de "+i);
-				item.addStream(vozEntrante);
+				item.addStream(remote_stream);
 				CrearOfertaSDP(i);
 			}
 			i++;
@@ -247,7 +249,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
                 'audio': true,
                 'video': false
             },
-	    'mediaStream':local_stream
+	    'mediaStream':peers[0]
         };
         
         //Llamando
@@ -285,12 +287,9 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 	isLlamadaEntrante=false;
 
 	//Reset de los flujos y peerConnections foráneos
-	peerConnections[0]=null;
-	peerConnections[1]=null;
+	peerConnections= new Array(2);
 	peerConnections[2]=null;
-	peers[0]=null;
-	peers[1]=null;
-	peers[2]=null;
+	peers= new Array(2);
 
 	isIniciaLlamada = false;
         isIniciado[0] = false;
@@ -370,20 +369,10 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         pc.onaddstream = function (event) {
             console.log('CPBX ---> Recibí un flujo remoto de: ' + clienteDestino);
             peers[clienteDestino] = event.stream;
-
-            var theirMultimedia = document.getElementById('theirMultimedia');
-	    //attachMediaStream(theirMultimedia, event.stream);
-
-	    local_stream=event.stream;
-	    
-	    if(isPeticionLlamada){
-		console.log('CPBX ---> El flujo se utilizará para realizar una llamada ...');
-	    	NuevaLlamada(); 
-		}
-	    else if(isLlamadaEntrante){
-		console.log('CPBX ---> El flujo se utilizará para responder una llamada ...');
-		ResponderLlamada(event.stream);
-		}
+	
+	    //Cada que se recibe el flujo de un usuario, se verifica si se tienen
+	    //los flujos de todos los participantes en la sala de videoconferencia
+	    RevisarVozParticipantes();
         }
         
         //Si debo remover el flujo del otro usuario
@@ -401,6 +390,39 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     OnSignalingError = 
     function (error) {
         console.log('CPBX ---> Fallo al crear la señalización : ' + error.name);
+    };
+
+
+    /*
+     * Verificación de la cantidad de flujos remotos que se tienen
+     * Si se tienen ya todas las voces de los participantes, se procede a
+     * realizar o responder una llamada telefónica
+     */
+    RevisarVozParticipantes=
+    function(){
+
+	var cantVoces=0;
+	peers.forEach(function(item){
+		if(typeof item != 'undefined'){
+			console.log('CPBX ---> Hay '+cantVoces+' flujos');
+			cantVoces++;
+		}
+	});
+	
+	if(cantVoces==cantParticipantes){
+		console.log('CPBX ---> Ya tengo todas las voces. Procediendo a manejar la llamada ...');
+		
+		if(isPeticionLlamada){
+			  console.log('CPBX ---> El flujo se utilizará para realizar una llamada ...');
+			  NuevaLlamada(); 
+			   }
+			else if(isLlamadaEntrante){
+			  console.log('CPBX ---> El flujo se utilizará para responder una llamada ...');
+			  ResponderLlamada(peers[0]);
+			   }
+	}else
+		console.log('CPBX ---> Aún no tengo todas las voces ....');
+	
     };
     
     
@@ -577,6 +599,7 @@ CrearTonoMarcando =
                 // Esta es una oferta SDP
                 // Si no soy quien inició la llamada, y aún no se
                 // ha arrancado la comunicación, se debe revisar el estado del canal
+		console.log("isIniciaLlamada: "+isIniciaLlamada+" isIniciado: "+isIniciado[mensaje.de]);
                 if (!isIniciaLlamada && !isIniciado[mensaje.de]) {
                     RevisarStatusCanal(mensaje.de);
                 }
@@ -623,7 +646,10 @@ CrearTonoMarcando =
 		// Un nuevo usuario llegó a la sala
                 console.log("CPBX ---> Ha llegado un nuevo usuario: " + mensaje.contenido);
                 isCanalListo = true;
-                isIniciaLlamada = true;
+                //isIniciaLlamada = true;
+		//debo esperar a que me lleguen todos los audios para poder marcar!
+		//aquí es donde sé quiénes están en la sala para poder hablar por teléfono ....
+		cantParticipantes++;  
                  }                                                                                                                                                                          
         });
         
@@ -637,6 +663,7 @@ CrearTonoMarcando =
                 var pc = peerConnections[clienteDestino];
                 if (pc) pc.close();
                 pc = null;
+		cantParticipantes--;
             }
         });
     }

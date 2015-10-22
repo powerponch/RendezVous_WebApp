@@ -5,7 +5,7 @@ margin: 0px;
  overflow-x: hidden;
   min-width: 640px;
   max-width: 100%;
-  font-family: Raleway;
+  font-family: Segoe UI;
 }
 #container {
 width:100%;
@@ -58,7 +58,7 @@ float:left;
  height: 60px;
  font-size:18px;
  color:#FFF;
- font-family:'Raleway';
+ font-family:'Segoe UI';
  text-align:center;
 }
 #headerSalir{
@@ -83,7 +83,7 @@ color:#FFF;
 #btnSalir{
 float:left;
 font-size:18px;
-font-family:'Raleway';
+font-family:'Segoe UI';
 text-align:center;
 }
 #margenMosaicos{
@@ -231,7 +231,7 @@ background-color: #04B4AE;
 }
 #footer {
 font-size:14px;
-font-family:'Raleway';
+font-family:'Segoe UI';
 float:left;
 background-color: #2E2E2E;
 width:100%;
@@ -282,7 +282,7 @@ background-color:#A4A4A4;
 text-align:center;
 color:#FFF;
 font-size:13px;
-font-family: 'Raleway';
+font-family: 'Segoe UI';
 font-weight:bold;
 -webkit-touch-callout: none;
 -webkit-user-select: none;

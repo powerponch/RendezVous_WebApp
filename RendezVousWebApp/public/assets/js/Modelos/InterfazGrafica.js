@@ -353,6 +353,7 @@ function InterfazGrafica() {
                 mosaicoLlamada.src = '';
                 mosaicoLlamada.load();
 		document.getElementById("iconLlamada").src="assets/images/phoneResting.png";
+		DesbloquearSoftphone();
                 break;
         }
 		console.log("(UI) ---------> Flujo removido");
@@ -390,7 +391,7 @@ function InterfazGrafica() {
     /*
      *Desbloquea el softphone
      */
-     this.BloquearSoftphone=
+     DesbloquearSoftphone=
 	function(){
 	console.log("(UI) ---------> Softphone desbloqueado");
 	document.getElementById('telefono').className='softphone';
