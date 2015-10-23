@@ -127,16 +127,19 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 	//parámetros de la llamada
 	//Aquí se agregan los flujos de la videoconferencia
 	//Aquí se deberían adjuntar los tracks conforme lleguen...
-        var optiones = { 
+        var opciones = { 
             'mediaConstraints': {
                 'audio': true,
                 'video': false
             },
 	    'mediaStream':stream
         };
+
+	console.log("La voz con la que se responde es: ");
+	console.log(stream);
         
         //atendiendo la llamada
-        sesion_entrante.answer(optiones);
+        sesion_entrante.answer(opciones);
     };
 
 
@@ -233,6 +236,35 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 			if(isIniciado[i]){
 				console.log("CPBX ---> Reemplazando el flujo de "+i);
 				item.addStream(remote_stream);
+
+				/**console.log("El pc es: ");
+        			console.log(item.getSenders());
+
+				//obtener el RTCSender del flujo
+        			var miSender = item.getSenders()[0];
+        			console.log("El sender es: ");
+        			console.log(miSender);
+
+				//eliminarlo del pc
+        			item.removeTrack(miSender);
+        			console.log("El pc sin el sender es: ");
+        			console.log(item.getSenders());
+
+				//sacar la pista de audio del nuevo flujo
+        			var nuevaPista = peers[i].getTracks()[0];
+        			console.log("La nueva pista de audio es: ");
+        			console.log(nuevaPista);
+
+				//agregar la pista de audio al pc
+        			console.log("Las pistas del MediaStream son: ");
+        			console.log(peers[i].getTracks());
+
+        			item.addTrack(nuevaPista, peers[i]);
+        			console.log("El pc con nueva pista es: ");
+        			console.log(item.getSenders()); **/
+				
+
+				//renegociación
 				CrearOfertaSDP(i);
 			}
 			i++;
@@ -288,7 +320,6 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 
 	//Reset de los flujos y peerConnections foráneos
 	peerConnections= new Array(2);
-	peerConnections[2]=null;
 	peers= new Array(2);
 
 	isIniciaLlamada = false;
@@ -341,7 +372,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         
         var pc;
         try {
-            pc = new RTCPeerConnection(pc_config, pc_constraints);
+            pc = new RTCPeerConnection(pc_config, null);
             pc.addStream(flujoLocal);
             
             //Si recibo un candidato ICE del otro usuario
