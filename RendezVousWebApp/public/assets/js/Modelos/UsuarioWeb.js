@@ -428,6 +428,10 @@ function UsuarioWeb(nombreUsuario, dirServidor, puerto) {
 		}
 		navigator.getUserMedia(constraintsAudio, AdquirirAudioRespuesta, AdquirirAudioVideoLocalError);
 	    }
+	    else if(mensaje.de==3 && isIniciado[3]){
+	    //ya hay una sesión activa. No hay más qué hacer
+		console.log("CC ---> Ya se tiene una sesión activa con PBX ...");
+	    }
 	    //usuario pbx no puede iniciar una llamada
             else if(mensaje.de==3){
 		isIniciaLlamada=true;

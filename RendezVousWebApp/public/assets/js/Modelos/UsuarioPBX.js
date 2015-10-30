@@ -44,8 +44,8 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
     var context = new AudioContext();
     
     //************************Flujos multimedia de prueba
-    var local_stream = null;
-    var remote_stream = null;
+    var local_stream;
+    var remote_stream;
     //***************************************************    
 
     //Inicialización del socket del usuario web
@@ -260,8 +260,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         			console.log(peers[i].getTracks());
 
         			item.addTrack(nuevaPista, peers[i]);
-        			console.log("El pc con nueva pista es: ");
-        			console.log(item.getSenders()); **/
+        			console.log("El pc con nueva pista es: ");**/
 				
 
 				//renegociación
@@ -312,7 +311,7 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 
 	//Reset de los flujos propios
 	vozEntrante=null;
-	remote_stream=null;
+	remote_stream=undefined;
 
 	//Reset de las banderas
 	isPeticionLlamada=false;
@@ -373,7 +372,15 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
         var pc;
         try {
             pc = new RTCPeerConnection(pc_config, null);
+
+	if(typeof remote_stream != 'undefined'){
+		console.log('CPBX ---> Añadiendo la voz de la llamada al pc');
+		pc.addStream(remote_stream);
+	}
+	else{
+	    console.log('CPBX ---> Añadiendo el tono sordo al pc');
             pc.addStream(flujoLocal);
+	}
             
             //Si recibo un candidato ICE del otro usuario
             pc.onicecandidate = function (event) {
@@ -403,6 +410,8 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
 	
 	    //Cada que se recibe el flujo de un usuario, se verifica si se tienen
 	    //los flujos de todos los participantes en la sala de videoconferencia
+	    //Si hay una llamada en progreso, no se puede iniciar/responder otra
+	    if(typeof remote_stream == 'undefined')
 	    RevisarVozParticipantes();
         }
         
@@ -613,12 +622,16 @@ CrearTonoMarcando =
         });
         
         //Cuando reciba INVITE
-        /**socket.on("INVITE", function (mensaje) {
-            console.log("(INVITE)");
-            //ui.agregaTextoLog("(INVITE)");
-            console.log(mensaje);
-            RevisarStatusCanal(mensaje.de);
-        });**/
+        socket.on("INVITE", function (mensaje) {
+	 if(isPeticionLlamada || isLlamadaEntrante){ 
+		//solo cuando está una llamada activa recibo peticiones de invitación	
+		    console.log("(INVITE)");
+		    console.log("CPBX ---> (INVITE)");
+		    console.log(mensaje);
+		    //RevisarStatusCanal(mensaje.de);
+		    EnviarMensaje("INVITE", idUsuario, nombreUsuario);
+	    }
+        });
         
         //Cuando reciba MESSAGE
         socket.on("MESSAGE", function (mensaje) {
