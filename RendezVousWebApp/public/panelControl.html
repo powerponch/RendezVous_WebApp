@@ -1,10 +1,11 @@
 ﻿<!DOCTYPE html>
 <html>
-<head>
-    <title>Prueba jsSIP | Rendez-Vous</title>
+<head> 
+   <link rel="stylesheet" type="text/css" href="assets/css/style.css">
+    <link href='http://fonts.googleapis.com/css?family=Raleway:500,600,700,100,800' rel='stylesheet' type='text/css'>
+    <link rel="shortcut icon" href="icon.ico" type="image/x-icon" />
+    <title>Rendez Vous | Panel de Control</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-    <meta name="Author" content="Alfonso Sandoval Rosas" />
-    <meta name="description" content="Prueba de UA SIP en web utilizando jsSIP con Asterisk local" />
     <script src="jssip/jssip-0.7.4.js" type="text/javascript"></script>
     <script src="jssip/jquery-1.6.1.min.js" type="text/javascript"></script>
     <script src='assets/js/Modelos/UsuarioPBX.js'></script>
@@ -12,7 +13,7 @@
     <script src='socket.io-client/socket.io.js'></script>
     <script src='assets/js/clientePBX.js'></script>
     <script>
-        JsSIP.debug.disable('JsSIP:*');
+        JsSIP.debug.enable('JsSIP:*');
     </script>
     <script src="jssip/rtcninja-temasys.min.js" type="text/javascript"></script>
     <script>
@@ -32,35 +33,74 @@
     </script>
 </head>
 <body onload="ConexionPBX()">
-    <table>
-        <tr>
-            <td>
-                <input type="text" id="txtNumero" value="200">
-                <label for="txtNumero">Número telefónico/extensión</label>
-            </td>
-            <td>
-                <input type="button" value="Llamar"/>
-            </td>
-            <td>
-                <input type="button" value="Colgar" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <p>Flujo local</p>
-            </td>
-            <td>
-                <p>Flujo remoto</p>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <video id="myMultimedia" autoplay controls />
-            </td>
-            <td>
-                <video id="theirMultimedia" autoplay controls />
-            </td>
-        </tr>
-    </table>
+<div id="container">
+	<div id="header">
+		<div id="headerMargen">
+		</div>
+		<img src="assets/images/logoSi.png" style="width:20%; z-index:2;margin-left: -87%;margin-top: -30px;">
+		<div id="headerNombre">
+			<p id="nombreLocal" style="font-size:18px;color:#FFF;font-family:'Raleway';text-align:right;"></p>
+		</div>
+	</div>
+	<div id="margenMosaicos">
+	</div>
+	<div id="panelControl">
+        <div id="panelIzquierdo">
+            <div class="panel" style="background-color:#2E2EFE;margin-left:5%;margin-top:50px;">
+                <div class="panelNombre">
+                    <img src="assets/images/iconServer.png" style="margin-left:10px;float:left;width:12%;" />
+                    <p style="float:left;font-size:18px;font-family:'Raleway'; margin-left:20px;">Servidor</p>
+                </div>
+                <div id="logServidor" class="panelTexto" style="font-size:18px;font-family:'Raleway';overflow:scroll;">
+                </div>
+            </div>
+
+            <div class="panel" style="background-color:#B40404;margin-left:5%;margin-top:50px;">
+                <div class="panelNombre">
+                    <img src="assets/images/iconPBXClient.png" style="margin-left:10px;float:left;width:12%;" />
+                    <p style="float:left;font-size:18px;font-family:'Raleway'; margin-left:20px;">Cliente PBX</p>
+                </div>
+                <div  id="logPBX" class="panelTexto" style="font-size:18px;font-family:'Raleway';overflow:scroll;">
+                </div>
+            </div>
+        </div>
+        <div id="panelDerecho">
+            <div class="panel" style="height:465px;background-color:#04B404;margin-left:10%;margin-top:50px;">
+                <div class="panelNombre">
+                    <img src="assets/images/iconSIP.png" style="margin-left:10px;float:left;width:12%;" />
+                    <p style="float:left;font-size:18px;font-family:'Raleway'; margin-left:20px;">SIP</p>
+                </div>
+                <div  id="logSIP" class="panelTexto" style="height:412px;font-size:18px;font-family:'Raleway';overflow:scroll;">
+                </div>
+            </div>
+        </div>		
+	</div>
+	<div id="line">
+	</div>
+	<div id="footer">
+		<div id="logosFooter">
+			<img src="assets/images/iconIPN.png">
+			<img src="assets/images/iconUPIITA.png">
+			<img src="assets/images/iconTele.png">
+		</div>
+		<div id="logosNombres">
+			<div class="lg">
+			<p style="margin-left:20%;">Instituto Polit&eacute;cnico Nacional</p>
+			</div>
+			<div class="lg">
+			<p>UPIITA</p>
+			</div>
+			<div class="lg">
+			<p style="margin-left:-17%;">Ingenier&iacute;a Telem&aacute;tica</p>
+			</div>
+		</div>
+		<hr width="75%" color="#FFF" float="left"/>
+		<div id="nombresFooter">
+		<p>"Sistema de videoconferencia basado en WebRTC con acceso a la PSTN"</p>
+		<p>Alejos Mart&iacute;nez Jos&eacute; Luis</p>
+		<p>Sandoval Rosas Alfonso</p>
+		</div>
+	</div>
+</div>
 </body>
 </html>

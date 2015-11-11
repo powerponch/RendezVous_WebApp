@@ -38,6 +38,7 @@ function ServidorSenalizacion(app) {
         //Detección de conexión remota
         _io.sockets.on('connection', function (socket) {
             console.log('SS ------------> (Conexión detectada)');
+
             
             // 1.- Mensajes solicitando registro
             socket.on('REGISTER', function (nombreUsuario) {
@@ -56,6 +57,10 @@ function ServidorSenalizacion(app) {
 		        socket.join(_room);
 		        socket.emit('OK', 3);
 		        console.log('SS ------------> Nuevo cliente en la sala: 3');
+
+			//log
+			_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"Nuevo cliente en la sala: 3"}});
+			
 		}
 		//Si es cualquier otro usuario, se verifica su validez
 		else{
@@ -63,6 +68,9 @@ function ServidorSenalizacion(app) {
 		        if (_numClientes <= 2) {
 		            
 		            console.log("SS ------------> Hay actualmente (" + _numClientes + ") clientes en la sala");
+
+			//log
+			_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"Hay actualmente (" + _numClientes + ") clientes en la sala"}});
 		            
 		            //Se recorre el arreglo de participantes para verificar 
 		            //que el nombre del nuevo participante no esté ya duplicado
@@ -72,13 +80,20 @@ function ServidorSenalizacion(app) {
 		            _participantes.forEach(function (item) {
 		                if (item.nombreUsuario == nombreUsuario) {
 		                    console.log("SS ------------> ERROR :: Este nombre ya existe ...");
+
+				//log
+				_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"ERROR :: Este nombre ya existe ..."}});
+
 		                    nombreValido = false;
 		                }
 		            });
 		            
 		            //El nombre ya está duplicado
 		            if (!nombreValido) {
-		                console.log("SS ------------> ERROR :: El nombre ya está duplicado")
+		                console.log("SS ------------> ERROR :: El nombre ya está duplicado");
+				//log
+				_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"ERROR :: El nombre ya está duplicado"}});
+
 		                socket.emit('Service Unavailable', 1);
 		            }
 
@@ -103,7 +118,11 @@ function ServidorSenalizacion(app) {
 		                        //Agregación del nuevo cliente         
 		                        socket.join(_room);
 		                        socket.emit('OK', nuevoId);
+
 		                        console.log('SS ------------> Posición del cliente: ' + nuevoId);
+					//log
+					_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"Posición del cliente: " + nuevoId}});
+
 		                        _numClientes++;
 
 		                } catch (e) {
@@ -126,17 +145,15 @@ function ServidorSenalizacion(app) {
 	
                 	//El mensaje va dirigido a un usuario en específico de la sala
                 	console.log('(MESSAGE) de: ' + mensaje.de + ' para: ' + mensaje.para + ' tipo: '+ mensaje.contenido.type);
+			//log
+			_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:'(MESSAGE) de: ' + mensaje.de + ' para: ' + mensaje.para + ' tipo: '+ mensaje.contenido.type}});
 
 			//Aquí debería mandar un mensaje de llamada telefónica a los demás usuarios web
 			if(mensaje.contenido.type=="call"){
 				console.log('SS ------------> Petición de '+mensaje.nombre+" para marcar al teléfono: "+mensaje.contenido.number);
-				/**var i;
-				for(i=0; i<=3; i++){
-					if(i!=mensaje.de && _participantes[i].nombreUsuario!=""){
-						console.log("Enviando notificación de bloqueo a: "+i);
-						_participantes[i].socket.emit('MESSAGE', mensaje);
-					}
-				} **/
+				//log
+				_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:'Petición de '+mensaje.nombre+" para marcar al teléfono: "+mensaje.contenido.number}});
+
 				socket.broadcast.emit('MESSAGE', mensaje);			
 			}
 			else
@@ -148,6 +165,9 @@ function ServidorSenalizacion(app) {
             //3.- Notificación de que el usuario está listo para llamar a quien esté en la sala
             socket.on('INVITE', function (mensaje) {
                 console.log('SS ------------> (INVITE) Petición de: '+mensaje.nombre);
+		//log
+		_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:'(INVITE) Petición de: '+mensaje.nombre}});
+
                 socket.broadcast.emit('INVITE', mensaje);
             });
             
@@ -163,9 +183,16 @@ function ServidorSenalizacion(app) {
                 	socket.leave(_room);
                 	_numClientes--;
                 	console.log("SS ------------> (BYE) " + mensaje + " ha abandonado la sala");
+			//log
+			_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"(BYE) " + mensaje + " ha abandonado la sala"}});
+
 		}
-                else
+                else{
 			console.log("SS ------------> (BYE) Se ha concluído una llamada telefónica");
+			//log
+			_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"(BYE) Se ha concluído una llamada telefónica"}});
+			}
+			
                 _io.sockets.in(_room).emit('BYE', mensaje);
             });
         });

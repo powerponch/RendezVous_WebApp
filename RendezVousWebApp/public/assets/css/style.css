@@ -1,11 +1,8 @@
-
-
 body {
 margin: 0px;
  overflow-x: hidden;
   min-width: 640px;
   max-width: 100%;
-  font-family: Segoe UI;
 }
 #container {
 width:100%;
@@ -58,8 +55,8 @@ float:left;
  height: 60px;
  font-size:18px;
  color:#FFF;
- font-family:'Segoe UI';
- text-align:center;
+ font-family:'Raleway';
+ text-align:right;
 }
 #headerSalir{
 float:left;
@@ -67,6 +64,10 @@ float:left;
  height: 60px;
  background-color:#A4A4A4;
  cursor:pointer;
+  background-image:url(assets/images/btnSalir.png);
+}
+#headerSalir:hover{
+  background-image:url(assets/images/btnSalirHover.png);
 }
  #headerSalir:hover{
 color:#A4A4A4;
@@ -83,7 +84,7 @@ color:#FFF;
 #btnSalir{
 float:left;
 font-size:18px;
-font-family:'Segoe UI';
+font-family:'Raleway';
 text-align:center;
 }
 #margenMosaicos{
@@ -143,7 +144,7 @@ margin-left:30px;
 	float:left;
 	text-align:center;
 }
-.softphone{
+#softphone{
 margin-top:40px;
 margin-left:-3%;
 float:left;
@@ -153,26 +154,13 @@ width:22%;
 -o-transition: all 1s ease-in-out;
 transition: all 1s ease-in-out;
 }
-.softphone:hover{
+#softphone:hover{
 -webkit-transform: translate(-70%, 0%);
 -moz-transform: translate(-70%, 0%);
 -o-transform: translate(-70%, 0%);
 -ms-transform: translate(-70%, 0%);
 transform: translate(-70%, 0%);
 }
-
-.softphone2{
-margin-top:40px;
-margin-left:-3%;
-float:left;
-width:22%;
-background-color:gray;
--webkit-transition: all 1s ease-in-out;
--moz-transition: all 1s ease-in-out;
--o-transition: all 1s ease-in-out;
-transition: all 1s ease-in-out;
-}
-
 #soft{
 	float:left;
 height:340px;
@@ -202,7 +190,6 @@ margin-top: 5%;
 margin-right:5%;
 margin-bottom:5%;
 margin-left: 5%;
-font-size:2em;
 }
 #buttons{
 	position:left;
@@ -231,7 +218,7 @@ background-color: #04B4AE;
 }
 #footer {
 font-size:14px;
-font-family:'Segoe UI';
+font-family:'Raleway';
 float:left;
 background-color: #2E2E2E;
 width:100%;
@@ -256,14 +243,36 @@ height: 70px;
 text-align:center;
 color:#FFF;
 }
-#mosaicoVideo1{
-margin-top: -40px;
+#panelControl{
+width:100%;
+height:600px;	
 }
-#mosaicoVideo2{
-margin-top: -40px;
+#panelIzquierdo{
+width:50%;
+height:600px;	
+float:left;
 }
-#mosaicoVideo3{
-margin-top: -40px;
+#panelDerecho{
+width:50%;
+height:600px;	
+float:left;
+}
+.panel{
+float:left;
+width: 80%;
+height: 200px;
+}
+.panelNombre{
+ width: 100%;
+ height: 40px;
+ color:#FFF;
+}
+.panelTexto{
+position:relative;
+margin-left:0px;
+ width: 100%;
+ height: 160px;
+ background-color: #FFF;
 }
 .lg {
 float: left;
@@ -282,7 +291,7 @@ background-color:#A4A4A4;
 text-align:center;
 color:#FFF;
 font-size:13px;
-font-family: 'Segoe UI';
+font-family: 'Raleway';
 font-weight:bold;
 -webkit-touch-callout: none;
 -webkit-user-select: none;
@@ -296,7 +305,6 @@ background-color:#2E2E2E;
 }
 .number p{
 margin-top:8%;
-font-size:1em;
 -webkit-touch-callout: none;
 -webkit-user-select: none;
 -khtml-user-select: none;

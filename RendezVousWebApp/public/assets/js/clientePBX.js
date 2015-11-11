@@ -12,7 +12,7 @@
 function ConexionPBX(){
 
 	// Variables de la instancia de UsuarioPBX
-	var dirServidor = "10.100.0.5";
+	var dirServidor = "10.100.0.4";
 	var puerto = "3000";
 	var dirAsterisk = "127.0.0.1";
 	var usuarioPBX = null;
