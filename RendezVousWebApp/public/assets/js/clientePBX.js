@@ -36,7 +36,9 @@ function ConexionPBX(){
 
 	// Características de la oferta SDP
 	//(REVISAR)
-	var sdpConstraints = {};
+	var sdpConstraints = {
+		offerToReceiveAudio: true
+	};
 
 	// Establecer características de getUserMedia 
 	var constraints = {

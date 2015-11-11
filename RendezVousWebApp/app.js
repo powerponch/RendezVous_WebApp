@@ -45,4 +45,4 @@ serv.Iniciar();
 //la cual se conectará automáticamente a Asterisk
 var open = require('open');
 //open("10.100.0.5:3000/panelControl.html","chromium-browser");
-open("10.100.0.4:3000/panelControl.html","firefox");
+open("10.100.0.4:3000/assets/panelControl.html","firefox");

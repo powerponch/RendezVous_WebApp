@@ -1,4 +1,3 @@
-
 function cargarSoftphone(){
     document.getElementById("btnSend").onmouseover.src = 'assets/images/btnSend1';
     document.getElementById("btnSend").onmouseout.src = 'assets/images/btnSend2';
