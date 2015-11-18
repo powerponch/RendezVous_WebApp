@@ -1,6 +1,6 @@
 ﻿///////////////////////////////////////////////////////////////////////
 /////////////////// INSTITUTO POLITÉCNICO NACIONAL ////////////////////
-////////UNIDAD PROFESIONAL INTERDISCIPLINARIA EN INGENIERÍA Y////////// 
+////////UNIDAD PROFESIONAL INTERDISCIPLINARIA EN INGENIERÍA Y//////////
 /////////////////////////TECNOLOGÍAS AVANZADAS/////////////////////////
 /////////////////////////INGENIERÍA TELEMÁTICA/////////////////////////
 ///////////////////////////////////////////////////////////////////////
@@ -11,7 +11,7 @@
 ///////////////////////////////////////////////////////////////////////
 //////////////////////ALEJOS MARTÍNEZ JOSÉ LUIS////////////////////////
 ///////////////////////SANDOVAL ROSAS ALFONSO//////////////////////////
-/////////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////////
 
 /***EL SCRIPT CORRESPONDE A UN SERVIDOR WEB, EL CUAL SERÁ EL ENCARGADO
  * DE GESTIONAR LA SALA DE VIDEOCONFERENCIA (PETICIONES, ENTRADA,
@@ -44,5 +44,6 @@ serv.Iniciar();
 //junto con el panel se creará una nueva instancia de UsuarioPBX
 //la cual se conectará automáticamente a Asterisk
 var open = require('open');
-//open("10.100.0.5:3000/panelControl.html","chromium-browser");
-open("10.100.0.4:3000/assets/panelControl.html","firefox");
+//open("10.100.0.3:3000/assets/panelControl.html","/home/labmovil-1/Descargas/firefox/firefox");
+//open("10.100.0.3:3000/assets/panelControl.html","google-chrome");
+open("10.100.0.3:3000/assets/panelControl.html","firefox");

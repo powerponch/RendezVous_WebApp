@@ -183,17 +183,19 @@ function ServidorSenalizacion(app) {
                 	socket.leave(_room);
                 	_numClientes--;
                 	console.log("SS ------------> (BYE) " + mensaje + " ha abandonado la sala");
+			_io.sockets.in(_room).emit('BYE', mensaje);
 			//log
 			_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"(BYE) " + mensaje + " ha abandonado la sala"}});
-
 		}
                 else{
+			//Si quien sale es 3, se manda a su BYE a todos menos a él
 			console.log("SS ------------> (BYE) Se ha concluído una llamada telefónica");
 			//log
 			_participantes[3].socket.emit('MESSAGE', {contenido:{type:"log",mensaje:"(BYE) Se ha concluído una llamada telefónica"}});
+			socket.broadcast.emit('BYE', mensaje);
 			}
+		
 			
-                _io.sockets.in(_room).emit('BYE', mensaje);
             });
         });
     };

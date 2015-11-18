@@ -16,7 +16,7 @@ navigator.getUserMedia = navigator.getUserMedia ||
 navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
 
 // Configuración ICE para conexion p2p
-var pc_config = webrtcDetectedBrowser == 'firefox' ?  
+var pc_config = webrtcDetectedBrowser == 'firefox' ?
 { 'iceServers': [{ 'url': 'stun:23.21.150.121' }] } :            // Firefox
 { 'iceServers': [{ 'url': 'stun:stun.l.google.com:19302' }] };   // Chrome
 
@@ -31,7 +31,7 @@ var pc_constraints = {
 //(REVISAR)
 var sdpConstraints = {};
 
-// Establecer características de getUserMedia 
+// Establecer características de getUserMedia
 var constraints = {
     "audio": true,
     "video": {
@@ -47,21 +47,22 @@ var constraints = {
 
 //Variables de configuración de la instancia
 var puerto = "3000";
-var ip = "10.100.0.4";
+var ip = "10.100.0.3";
 var usuarioWeb = null;
 
 /*
  * Crea una instancia de un usuario web y valida sus propiedades
- * De ser válido, redirecciona a la página de la sala de videoconferencia 
- */ 
+ * De ser válido, redirecciona a la página de la sala de videoconferencia
+ */
 function redireccionar() {
-    
+    console.log("Invocando la funciónd redireccionar: " + nombre);
+
     // Inicio de operación con el usuario, ingresar nombre de la sala
     var nombre = document.getElementById('texto').value;
     console.log("Invocando la funciónd redireccionar: " + nombre);
-    
+
     if (nombre.length > 0) {
-        
+
         if (usuarioWeb == null) {
             console.log("Primera vez que se crea el usuario ...");
             usuarioWeb = new UsuarioWeb(nombre, ip, puerto);
@@ -71,11 +72,11 @@ function redireccionar() {
             console.log("Segunda vez que se crea el usuario ...");
             usuarioWeb.VolverARegistrar(nombre);
         }
-        
+
         //Al salir de la sala, deben enviar un mensaje de bye
-        window.onbeforeunload = function () {
+        /**window.onbeforeunload = function () {
             usuarioWeb.SalirSala();
-        }
+        }**/
     }
     else {
         document.getElementById('mensajeError').innerHTML = "El campo no puede estar vacío";
@@ -84,11 +85,11 @@ function redireccionar() {
 }
 
 /*
-*Al presionar el botón, se sale de la página enviando mensaje de BYE 
+*Al presionar el botón, se sale de la página enviando mensaje de BYE
 *Se renderiza el login
 */
 function salirSala() {
-    //Envío del mensaje de BYE	
+    //Envío del mensaje de BYE
     usuarioWeb.SalirSala();
 
     //cargar el html de inicio de sesión ...
@@ -98,9 +99,14 @@ function salirSala() {
         '<html lang="es">',
         '<head>',
         '    <link rel="stylesheet" type="text/css" href="assets/css/style.css"> ',
-        '	<link href="http://fonts.googleapis.com/css?family=Raleway:500,600,700,100,800" rel="stylesheet" type="text/css">',
         '    <title>Rendez Vous</title>',
-        '    <script type="text/javascript" src="s.js"></script>',
+        '    <script src="assets/js/clienteWebRTC.js"></script>',
+        '<script src="assets/js/adapter.js"></script>',
+        '<script src="assets/js/scripts.js"></script>',
+        '<script src="socket.io-client/socket.io.js"></script>',
+        '<script src="assets/js/Modelos/InterfazGrafica.js"></script>',
+        '<script src="assets/js/Modelos/UsuarioWeb.js"></script>',
+        '<script src="assets/js/clienteWebRTC.js"></script>',
         '</head>',
         '<body>',
         '	<div id="logo">',
@@ -113,7 +119,7 @@ function salirSala() {
         '		 <input type="text" id="texto"name="texto" value="" />',
         '		 </br>',
         '		 </br>',
-        '        <input type="submit" id="btnEntrar" value="Entrar a la sala" onClick="reload()"/>',
+        '        <input type="submit" id="btnEntrar" value="Entrar a la sala" onClick="redireccionar()"/>',
         '		<p id="mensajeError" style="font-size:14px;font-weight:bold;color:#FF4000;font-family: "Raleway";"></p>',
         '	</div>',
         '</body>',
@@ -122,11 +128,12 @@ function salirSala() {
     ].join('');
 
     document.body.innerHTML = html;
+    usuarioWeb=null;
 }
 
 
 /*
-*Al presionar el botón de SEND del softphone, se envía un mensaje al servidor para 
+*Al presionar el botón de SEND del softphone, se envía un mensaje al servidor para
 *llamar por medio del UsuarioPBX. Se bloquean los softphones de los demás.
 */
 function llamarTel(){
@@ -143,10 +150,3 @@ function colgarTel(){
 	console.log("Se está colgando la llamada ....");
 	usuarioWeb.ColgarLlamadaTelefonica();
 }
-
-
-
-
-
-
-

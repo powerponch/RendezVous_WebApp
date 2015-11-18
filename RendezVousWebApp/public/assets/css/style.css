@@ -1,3 +1,7 @@
+@font-face{
+font-family:'Raleway';
+src: local('Raleway Regular'), local('Raleway-Regular'), url(Raleway-Regular.woff) format('woff');
+}
 body {
 margin: 0px;
  overflow-x: hidden;

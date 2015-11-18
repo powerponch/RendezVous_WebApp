@@ -77,7 +77,6 @@ function InterfazGrafica() {
             '<html lang="es">',
             '<head>',
             '    <link rel="stylesheet" type="text/css" href="assets/css/style.css">',
-            '	<link href="http://fonts.googleapis.com/css?family=Raleway:500,600,700,100,800" rel="stylesheet" type="text/css">',
             '    <title>Rendez Vouz</title>',
             '<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>',
             '    <script src="assets/js/adapter.js"></script>',

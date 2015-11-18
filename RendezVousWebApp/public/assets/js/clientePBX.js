@@ -12,9 +12,9 @@
 function ConexionPBX(){
 
 	// Variables de la instancia de UsuarioPBX
-	var dirServidor = "10.100.0.4";
+	var dirServidor = "10.100.0.3";
 	var puerto = "3000";
-	var dirAsterisk = "127.0.0.1";
+	var dirAsterisk = "10.100.0.4";
 	var usuarioPBX = null;
 
 	// Dependiendo del navegador se consiguen los flujos de cámara y micrófono
@@ -37,7 +37,7 @@ function ConexionPBX(){
 	// Características de la oferta SDP
 	//(REVISAR)
 	var sdpConstraints = {
-		offerToReceiveAudio: true
+		//offerToReceiveAudio: true
 	};
 
 	// Establecer características de getUserMedia 
