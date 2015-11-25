@@ -44,6 +44,6 @@ serv.Iniciar();
 //junto con el panel se creará una nueva instancia de UsuarioPBX
 //la cual se conectará automáticamente a Asterisk
 var open = require('open');
-//open("10.100.0.3:3000/assets/panelControl.html","/home/labmovil-1/Descargas/firefox/firefox");
+open("10.100.0.3:3000/assets/panelControl.html","/home/labmovil-1/Descargas/firefox/firefox");
 //open("10.100.0.3:3000/assets/panelControl.html","google-chrome");
-open("10.100.0.3:3000/assets/panelControl.html","firefox");
+//open("10.100.0.3:3000/assets/panelControl.html","firefox");

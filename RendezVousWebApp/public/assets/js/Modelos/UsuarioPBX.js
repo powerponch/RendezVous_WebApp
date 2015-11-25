@@ -156,7 +156,37 @@ function (e) {
       if(isIniciado[i]){
         console.log("CPBX ---> Reemplazando el flujo de "+i);
         AgregaTextoLog("CPBX ---> Reemplazando el flujo de "+i,2);
-        item.addStream(e.stream);
+
+        //Remover el flujo actual del peer
+        //item.removeStream(flujoLocal);
+        //Añadir el nuevo flujo
+        //item.addStream(remote_stream);
+
+        console.log("El pc es: ");
+        console.log(item.getSenders());
+
+        //obtener el RTCSender del flujo
+        var miSender = item.getSenders()[0];
+        console.log("El sender es: ");
+        console.log(miSender);
+
+        //eliminarlo del pc
+        item.removeTrack(miSender);
+        console.log("El pc sin el sender es: ");
+        console.log(item.getSenders());
+
+        //sacar la pista de audio del nuevo flujo
+        var nuevaPista = remote_stream.getTracks()[0];
+        console.log("La nueva pista de audio es: ");
+        console.log(nuevaPista);
+
+        //agregar la pista de audio al pc
+        console.log("Las pistas del MediaStream son: ");
+        console.log(peers[i].getTracks());
+
+        item.addTrack(nuevaPista, remote_stream);
+        console.log("El pc con nueva pista es: ");
+        console.log(item.getSenders());
 
         //Renegociación del nuevo audio
         CrearOfertaSDP(i);
@@ -198,7 +228,7 @@ function(){
       'audio': true,
       'video': false
     },
-    'mediaStream':vozSaliente
+    'mediaStream':peers[0]
   };
 
   console.log("La voz con la que se responde es: ");
@@ -299,7 +329,37 @@ function () {
         if(isIniciado[i]){
           console.log("CPBX ---> Reemplazando el flujo de "+i);
           AgregaTextoLog("CPBX ---> Reemplazando el flujo de "+i,2);
-          item.addStream(remote_stream);
+
+          //Remover el flujo actual del peer
+          //item.removeStream(flujoLocal);
+          //Añadir el nuevo flujo
+          //item.addStream(remote_stream);
+
+          console.log("El pc es: ");
+          console.log(item.getSenders());
+
+          //obtener el RTCSender del flujo
+          var miSender = item.getSenders()[0];
+          console.log("El sender es: ");
+          console.log(miSender);
+
+          //eliminarlo del pc
+          item.removeTrack(miSender);
+          console.log("El pc sin el sender es: ");
+          console.log(item.getSenders());
+
+          //sacar la pista de audio del nuevo flujo
+          var nuevaPista = remote_stream.getTracks()[0];
+          console.log("La nueva pista de audio es: ");
+          console.log(nuevaPista);
+
+          //agregar la pista de audio al pc
+          console.log("Las pistas del MediaStream son: ");
+          console.log(peers[i].getTracks());
+
+          item.addTrack(nuevaPista, remote_stream);
+          console.log("El pc con nueva pista es: ");
+          console.log(item.getSenders());
 
           //renegociación
           CrearOfertaSDP(i);
@@ -489,7 +549,7 @@ function (error) {
 */
 ProcesarAudio =
 function (cantVoces) {
-  console.log("Procesando el audio recibido...");
+  AgregaTextoLog("CPBX ---> Procesando el audio recibido...");
 
   //Creación del contexto
   var contexto;
@@ -509,7 +569,7 @@ function (cantVoces) {
   switch(cantVoces){
     //Cuando se tiene una sola voz
     case 1:
-    console.log("Solo hay una voz. Se va a transmitir tal cual ...");
+    AgregaTextoLog("CPBX --->Solo hay una voz. Se va a transmitir tal cual ...");
 
     for(var i=0; i<=2; i++){
       if(isIniciado[i]){
@@ -521,7 +581,7 @@ function (cantVoces) {
 
     //Cuando se tienen dos voces
     case 2:
-    console.log("Hay dos voces. Procediendo a crear el sistema con Web Audio ....");
+    AgregaTextoLog("CPBX ---> Hay dos voces. Procediendo a crear el sistema con Web Audio ....");
 
     //Selección de las voces a mezclar
     var j=0;
@@ -600,7 +660,7 @@ function (cantVoces) {
 
     //Cuando se tienen tres voces
     case 3:
-    console.log("Hay tres voces. Procediendo a crear el sistema con Web Audio ....");
+    AgregaTextoLog("CPBX ---> Hay tres voces. Procediendo a crear el sistema con Web Audio ....");
     fuente0=contexto.createMediaStreamSource(peers[0]);
     fuente1=contexto.createMediaStreamSource(peers[1]);
     fuente2=contexto.createMediaStreamSource(peers[2]);
@@ -633,7 +693,7 @@ function (cantVoces) {
     var merger1 = contexto.createChannelMerger(2);
 
     //definición de los bloques mezcladores
-    var tamanoBuffer = 4096;
+    var tamanoBuffer = 8192;
     var nodoProcesamienoPCM0 = contexto.createScriptProcessor(tamanoBuffer, 2, 1);
     nodoProcesamienoPCM0.onaudioprocess = function (event) {
       var input = event.inputBuffer;
@@ -691,6 +751,8 @@ function (cantVoces) {
 
   var audioMezcla = document.getElementById('audioMezcla');
   audioMezcla = JsSIP.rtcninja.attachMediaStream(audioMezcla, vozSaliente);
+  console.log("Probando la voz ....");
+  console.log(vozSaliente);
 };
 
 
@@ -858,9 +920,11 @@ EnviarTono =
 function () {
   //Establecer como flujo local
   var source = context.createBufferSource();
+  console.log(bufferAudio);
   source.buffer = bufferAudio;
   source.loop = true;
-  source.connect(context.destination);
+  source.start();
+  //source.connect(context.destination);
 
   // crear un destino para el navegador web remoto
   var remote = context.createMediaStreamDestination();
@@ -868,10 +932,14 @@ function () {
   // conectar el destino remoto a la fuente de audio
   source.connect(remote);
   flujoLocal = remote.stream;
-  console.log("El flujo local es:");
-  console.log(flujoLocal);
+
   console.log("CPBX ---> Tono de invitación cargado");
   AgregaTextoLog('CPBX ---> Tono de invitación cargado',2);
+
+  /**var audioMezcla = document.getElementById('audioMezcla');
+  audioMezcla = JsSIP.rtcninja.attachMediaStream(audioMezcla, flujoLocal);
+  console.log("Probando la voz ....");
+  console.log(flujoLocal);**/
 };
 
 
@@ -968,6 +1036,7 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
     else if(mensaje.contenido.type=="call"){
       // Petición de marcación para el PBX
       numTel="9"+mensaje.contenido.number;
+      nombreUsuario=mensaje.contenido.number;
       console.log("CPBX ---> Se desea marcar al número "+numTel);
       AgregaTextoLog("CPBX ---> Se desea marcar al número "+numTel,2);
 
