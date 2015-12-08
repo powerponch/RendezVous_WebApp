@@ -52,24 +52,24 @@ function UsuarioPBX(dirServidor, puerto, dirAsterisk) {
   //Inicialización del socket del usuario web
   try {
     socket = io.connect(dirServidor + ":" + puerto);
-    console.log("CPBX ---> Socket creado y escuchando en la dirección: " + dirServidor + ":" + puerto);
+    //console.log("CPBX ---> Socket creado y escuchando en la dirección: " + dirServidor + ":" + puerto);
 
     //Envío del mensaje REGISTER
     socket.emit('REGISTER', nombreUsuario);
-    console.log("CPBX ---> (REGISTER) " + nombreUsuario);
+    //console.log("CPBX ---> (REGISTER) " + nombreUsuario);
 
   } catch (err) {
     console.error("(ERROR) NO FUE POSIBLE CONECTAR CON EL SERVIDOR DE SEÑALIZACIÓN " + err);
   }
 
 
-  //Override de la función console.log()
-  /**var orig= console.log;
-  console.log=function()
+  //Override de la función //console.log()
+  var orig= console.log;
+ console.log=function()
   {
-  var texto= JSON.stringify({sip:arguments}).toString();
+  var texto= JSON.stringify({arguments}).toString();
   orig.apply(console,AgregaTextoLog(texto,1));
-};**/
+};
 
 /*
 * Agrega texto al respectivo cuadro de la página de panel de control
@@ -130,22 +130,22 @@ function (TextoLinea,tipo) {
 */
 CapturarLlamadaEntrante =
 function (e) {
-  console.log("CPBX ---> La llamada telefónica viene de fuera ...");
+  //console.log("CPBX ---> La llamada telefónica viene de fuera ...");
   AgregaTextoLog("CPBX ---> La llamada telefónica viene de fuera ...",2);
 
   sesion_entrante = e.session;
   var id= sesion_entrante.remote_identity.toString();
-  console.log(id);
+  //console.log(id);
 
   var sbs1= id.split("@")[0].substring(5);
-  console.log(sbs1);
+  //console.log(sbs1);
 
   nombreUsuario=sbs1;
-  console.log(sbs1);
+  //console.log(sbs1);
 
   //Suscripción a evento de recepción de flujo remoto de la sesión entrante
   sesion_entrante.on('addstream', function (e) {
-    console.log("CPBX ---> Se ha recibido un flujo remoto ...");
+    //console.log("CPBX ---> Se ha recibido un flujo remoto ...");
     AgregaTextoLog("CPBX ---> Se ha recibido un flujo remoto ...",2);
 
     remote_stream = e.stream;
@@ -154,7 +154,7 @@ function (e) {
     var i=0;
     peerConnections.forEach(function(item){
       if(isIniciado[i]){
-        console.log("CPBX ---> Reemplazando el flujo de "+i);
+        //console.log("CPBX ---> Reemplazando el flujo de "+i);
         AgregaTextoLog("CPBX ---> Reemplazando el flujo de "+i,2);
 
         //Remover el flujo actual del peer
@@ -162,31 +162,31 @@ function (e) {
         //Añadir el nuevo flujo
         //item.addStream(remote_stream);
 
-        console.log("El pc es: ");
-        console.log(item.getSenders());
+        //console.log("El pc es: ");
+        //console.log(item.getSenders());
 
         //obtener el RTCSender del flujo
         var miSender = item.getSenders()[0];
-        console.log("El sender es: ");
-        console.log(miSender);
+        //console.log("El sender es: ");
+        //console.log(miSender);
 
         //eliminarlo del pc
         item.removeTrack(miSender);
-        console.log("El pc sin el sender es: ");
-        console.log(item.getSenders());
+        //console.log("El pc sin el sender es: ");
+        //console.log(item.getSenders());
 
         //sacar la pista de audio del nuevo flujo
         var nuevaPista = remote_stream.getTracks()[0];
-        console.log("La nueva pista de audio es: ");
-        console.log(nuevaPista);
+        //console.log("La nueva pista de audio es: ");
+        //console.log(nuevaPista);
 
         //agregar la pista de audio al pc
-        console.log("Las pistas del MediaStream son: ");
-        console.log(peers[i].getTracks());
+        //console.log("Las pistas del MediaStream son: ");
+        //console.log(peers[i].getTracks());
 
         item.addTrack(nuevaPista, remote_stream);
-        console.log("El pc con nueva pista es: ");
-        console.log(item.getSenders());
+        //console.log("El pc con nueva pista es: ");
+        //console.log(item.getSenders());
 
         //Renegociación del nuevo audio
         CrearOfertaSDP(i);
@@ -197,7 +197,7 @@ function (e) {
 
   //Suscripción a evento de recepción de flujo remoto de la sesión entrante
   sesion_entrante.on('ended', function (e) {
-    console.log("CPBX ---> Terminó la llamada entrante .....");
+    //console.log("CPBX ---> Terminó la llamada entrante .....");
     AgregaTextoLog("CPBX ---> Terminó la llamada entrante .....",2);
 
     ColgarLlamada();
@@ -220,6 +220,16 @@ function (e) {
 ResponderLlamada=
 function(){
 
+  //conseguir el primer flujo válido
+  var vozRespuesta;
+
+  for(var i=0; i<=2; i++){
+    if(isIniciado[i]){
+      //console.log("La voz que tengo es: "+i);
+      vozRespuesta=peers[i];
+    }
+  }
+
   //parámetros de la llamada
   //Aquí se agregan los flujos de la videoconferencia
   //Aquí se deberían adjuntar los tracks conforme lleguen...
@@ -228,11 +238,11 @@ function(){
       'audio': true,
       'video': false
     },
-    'mediaStream':peers[0]
+    'mediaStream':vozRespuesta
   };
 
-  console.log("La voz con la que se responde es: ");
-  console.log(vozSaliente);
+  //console.log("La voz con la que se responde es: ");
+  //console.log(vozSaliente);
 
   //atendiendo la llamada
   sesion_entrante.answer(opciones);
@@ -244,7 +254,7 @@ function(){
 */
 this.RegistrarUA =
 function () {
-  console.log("CPBX ---> Iniciando creación del UA SIP....");
+  //console.log("CPBX ---> Iniciando creación del UA SIP....");
   AgregaTextoLog("CPBX ---> Iniciando creación del UA SIP....",2);
 
   //Configuración de conexión
@@ -273,7 +283,7 @@ function () {
   //Definir acciones para cuando se reciba una llamada
   ua.on('newRTCSession', function (e) {
     if (e.originator == "local"){
-      console.log("CPBX ---> Sesión RTC en progreso");
+      //console.log("CPBX ---> Sesión RTC en progreso");
       AgregaTextoLog("CPBX ---> Sesión RTC en progreso",2);
     }
     //Si la llamada es foránea, se tiene qué responder de inmediato
@@ -282,7 +292,7 @@ function () {
 
   //Registro del agente de usuario
   ua.start();
-  console.log("CPBX ---> Usuario asterisk registrado");
+  //console.log("CPBX ---> Usuario asterisk registrado");
   AgregaTextoLog("CPBX ---> Usuario asterisk registrado",2);
 };
 
@@ -292,42 +302,42 @@ function () {
 */
 NuevaLlamada =
 function () {
-  console.log("CPBX ---> Intentando hacer una llamada a "+numTel);
+  //console.log("CPBX ---> Intentando hacer una llamada a "+numTel);
   AgregaTextoLog("CPBX ---> Intentando hacer una llamada a "+numTel,2);
 
   // Register callbacks to desired call events
   var eventH = {
     'progress': function (e) {
-      console.log('CPBX ---> LLAMADA EN PROGRESO ...........');
+      //console.log('CPBX ---> LLAMADA EN PROGRESO ...........');
       AgregaTextoLog("CPBX ---> LLAMADA EN PROGRESO ...........",2);
     },
     'failed': function (e) {
-      console.log('CPBX ---> LA LLAMADA FALLÓ');
+      //console.log('CPBX ---> LA LLAMADA FALLÓ');
       AgregaTextoLog("CPBX ---> LA LLAMADA FALLÓ",2);
       ColgarLlamada();
     },
     'ended': function (e) {
-      console.log('CPBX ---> YA TERMINÓ LA LLAMADA: ');
+      //console.log('CPBX ---> YA TERMINÓ LA LLAMADA: ');
       AgregaTextoLog("CPBX ---> YA TERMINÓ LA LLAMADA",2);
       ColgarLlamada();
     },
     'confirmed': function (e) {
-      console.log('CPBX ---> LLAMADA CONFIRMADA');
+      //console.log('CPBX ---> LLAMADA CONFIRMADA');
       AgregaTextoLog("CPBX ---> LLAMADA CONFIRMADA",2);
     },
     'addstream': function (e) {
       remote_stream = e.stream;
-      console.log('CPBX ---> FLUJO REMOTO RECIBIDO');
+      //console.log('CPBX ---> FLUJO REMOTO RECIBIDO');
       AgregaTextoLog("CPBX ---> FLUJO REMOTO RECIBIDO",2);
 
-      console.log("CPBX ---> Renegociando .....");
+      //console.log("CPBX ---> Renegociando .....");
       AgregaTextoLog("CPBX ---> Renegociando .....",2);
 
       //reemplazo del flujo de audio con la sala de videoconferencia
       var i=0;
       peerConnections.forEach(function(item){
         if(isIniciado[i]){
-          console.log("CPBX ---> Reemplazando el flujo de "+i);
+          //console.log("CPBX ---> Reemplazando el flujo de "+i);
           AgregaTextoLog("CPBX ---> Reemplazando el flujo de "+i,2);
 
           //Remover el flujo actual del peer
@@ -335,31 +345,31 @@ function () {
           //Añadir el nuevo flujo
           //item.addStream(remote_stream);
 
-          console.log("El pc es: ");
-          console.log(item.getSenders());
+          //console.log("El pc es: ");
+          //console.log(item.getSenders());
 
           //obtener el RTCSender del flujo
           var miSender = item.getSenders()[0];
-          console.log("El sender es: ");
-          console.log(miSender);
+          //console.log("El sender es: ");
+          //console.log(miSender);
 
           //eliminarlo del pc
           item.removeTrack(miSender);
-          console.log("El pc sin el sender es: ");
-          console.log(item.getSenders());
+          //console.log("El pc sin el sender es: ");
+          //console.log(item.getSenders());
 
           //sacar la pista de audio del nuevo flujo
           var nuevaPista = remote_stream.getTracks()[0];
-          console.log("La nueva pista de audio es: ");
-          console.log(nuevaPista);
+          //console.log("La nueva pista de audio es: ");
+          //console.log(nuevaPista);
 
           //agregar la pista de audio al pc
-          console.log("Las pistas del MediaStream son: ");
-          console.log(peers[i].getTracks());
+          //console.log("Las pistas del MediaStream son: ");
+          //console.log(peers[i].getTracks());
 
           item.addTrack(nuevaPista, remote_stream);
-          console.log("El pc con nueva pista es: ");
-          console.log(item.getSenders());
+          //console.log("El pc con nueva pista es: ");
+          //console.log(item.getSenders());
 
           //renegociación
           CrearOfertaSDP(i);
@@ -383,7 +393,7 @@ function () {
 
   //Llamando
   sesion_saliente = ua.call('sip:' + numTel + '@' + dirAsterisk, options);
-  console.log("CPBX ---> Marcando (sip:" + numTel + '@' + dirAsterisk+")");
+  //console.log("CPBX ---> Marcando (sip:" + numTel + '@' + dirAsterisk+")");
   AgregaTextoLog("CPBX ---> Marcando (sip:" + numTel + "@" + dirAsterisk+")",2);
 };
 
@@ -393,7 +403,7 @@ function () {
 */
 ColgarLlamada =
 function () {
-  console.log("CPBX ---> Colgando la llamada actual ......");
+  //console.log("CPBX ---> Colgando la llamada actual ......");
   AgregaTextoLog("CPBX ---> Colgando la llamada actual ......",2);
 
   if (sesion_saliente != null) {
@@ -437,7 +447,7 @@ function () {
 */
 EnviarMensaje =
 function (cabecera, destino, contenido) {
-  //console.log("CC ---> Enviando el mensaje: (" + cabecera + ") " + contenido);
+  ////console.log("CC ---> Enviando el mensaje: (" + cabecera + ") " + contenido);
   socket.emit(cabecera, { de: idUsuario, nombre: nombreUsuario, para: destino, contenido: contenido });
 };
 
@@ -447,7 +457,7 @@ function (cabecera, destino, contenido) {
 */
 QuitarPeer =
 function (event) {
-  console.log('CPBX ---> Se removió el flujo remoto ' + event);
+  //console.log('CPBX ---> Se removió el flujo remoto ' + event);
   AgregaTextoLog("CPBX ---> Se removió el flujo remoto ",2);
 }
 
@@ -458,7 +468,7 @@ function (event) {
 */
 CrearPeerConnection =
 function (clienteDestino) {
-  console.log("CPBX ---> Ejecutando función CrearPeerConnection");
+  //console.log("CPBX ---> Ejecutando función CrearPeerConnection");
   AgregaTextoLog("CPBX ---> Ejecutando función CrearPeerConnection",2);
 
   // Inicializa la variable pc, que será el PeerConnection con el otro usuario
@@ -473,13 +483,13 @@ function (clienteDestino) {
     pc = new RTCPeerConnection(pc_config, null);
 
     if(typeof remote_stream != 'undefined'){
-      console.log('CPBX ---> Añadiendo la voz de la llamada al pc');
+      //console.log('CPBX ---> Añadiendo la voz de la llamada al pc');
       AgregaTextoLog("CPBX ---> Añadiendo la voz de la llamada al pc",2);
 
       pc.addStream(remote_stream);
     }
     else{
-      console.log('CPBX ---> Añadiendo el tono sordo al pc');
+      //console.log('CPBX ---> Añadiendo el tono sordo al pc');
       AgregaTextoLog("CPBX ---> Añadiendo el tono sordo al pc",2);
 
       pc.addStream(flujoLocal);
@@ -498,19 +508,19 @@ function (clienteDestino) {
           candidate: event.candidate.candidate
         });
       } else {
-        console.log('CPBX ---> Fin de los candidatos');
+        //console.log('CPBX ---> Fin de los candidatos');
         AgregaTextoLog("CPBX ---> Fin de los candidatos",2);
       }
     }
   } catch (e) {
-    console.log('CPBX ---> Falló al crear el PeerConnection, excepción: ' + e.message);
+    //console.log('CPBX ---> Falló al crear el PeerConnection, excepción: ' + e.message);
     AgregaTextoLog("CPBX ---> Falló al crear el PeerConnection",2);
     return;
   }
 
   //Si recibo el flujo del otro usuario
   pc.onaddstream = function (event) {
-    console.log('CPBX ---> Recibí un flujo remoto de: ' + clienteDestino);
+    //console.log('CPBX ---> Recibí un flujo remoto de: ' + clienteDestino);
     AgregaTextoLog("CPBX ---> Recibí un flujo remoto de: " + clienteDestino,2);
 
     peers[clienteDestino] = event.stream;
@@ -527,7 +537,7 @@ function (clienteDestino) {
 
   //Almacenar el nuevo pc en el arreglo local
   peerConnections[clienteDestino] = pc;
-  console.log('CPBX ---> He agregado en el arreglo peerConnections en la posicion: ' + clienteDestino + ' el pc');
+  //console.log('CPBX ---> He agregado en el arreglo peerConnections en la posicion: ' + clienteDestino + ' el pc');
   AgregaTextoLog('CPBX ---> He agregado en el arreglo peerConnections en la posicion: ' + clienteDestino + ' el pc',2);
 };
 
@@ -537,8 +547,8 @@ function (clienteDestino) {
 */
 OnSignalingError =
 function (error) {
-  console.log('CPBX ---> Fallo al crear la señalización : ');
-  console.log(error);
+  //console.log('CPBX ---> Fallo al crear la señalización : ');
+  //console.log(error);
   AgregaTextoLog("CPBX ---> Fallo al crear la señalización ",2);
 };
 
@@ -573,7 +583,7 @@ function (cantVoces) {
 
     for(var i=0; i<=2; i++){
       if(isIniciado[i]){
-        console.log("La voz que tengo es: "+i);
+        //console.log("La voz que tengo es: "+i);
         vozSaliente=peers[i];
       }
     }
@@ -587,18 +597,18 @@ function (cantVoces) {
     var j=0;
     for(var i=0; i<=2; i++){
       if(isIniciado[i]){
-        console.log("Una de las voces es: "+i);
+        //console.log("Una de las voces es: "+i);
 
         if(j==0){
-          console.log("La primera voz es: "+i);
+          //console.log("La primera voz es: "+i);
           fuente0=contexto.createMediaStreamSource(peers[i]);
-          console.log(peers[i]);
+          //console.log(peers[i]);
           j++;
 
         }else if(j==1){
-          console.log("La segunda voz es: "+i);
+          //console.log("La segunda voz es: "+i);
           fuente1=contexto.createMediaStreamSource(peers[i]);
-          console.log(peers[i]);
+          //console.log(peers[i]);
           j++;
         }
       }
@@ -654,8 +664,8 @@ function (cantVoces) {
 
     //escuchar el flujo final como MediaStream
     vozSaliente=nodoFlujoFinal.stream;
-    console.log("El MediaStream resultante es: ");
-    console.log(vozSaliente);
+    //console.log("El MediaStream resultante es: ");
+    //console.log(vozSaliente);
     break;
 
     //Cuando se tienen tres voces
@@ -693,7 +703,7 @@ function (cantVoces) {
     var merger1 = contexto.createChannelMerger(2);
 
     //definición de los bloques mezcladores
-    var tamanoBuffer = 8192;
+    var tamanoBuffer = 4096;
     var nodoProcesamienoPCM0 = contexto.createScriptProcessor(tamanoBuffer, 2, 1);
     nodoProcesamienoPCM0.onaudioprocess = function (event) {
       var input = event.inputBuffer;
@@ -751,8 +761,8 @@ function (cantVoces) {
 
   var audioMezcla = document.getElementById('audioMezcla');
   audioMezcla = JsSIP.rtcninja.attachMediaStream(audioMezcla, vozSaliente);
-  console.log("Probando la voz ....");
-  console.log(vozSaliente);
+  //console.log("Probando la voz ....");
+  //console.log(vozSaliente);
 };
 
 
@@ -768,13 +778,13 @@ function(){
   peers.forEach(function(item){
     if(typeof item != 'undefined'){
       cantVoces++;
-      console.log('CPBX ---> Hay '+cantVoces+' flujos');
+      //console.log('CPBX ---> Hay '+cantVoces+' flujos');
       AgregaTextoLog('CPBX ---> Hay '+cantVoces+' flujos',2);
     }
   });
 
   if(cantVoces==cantParticipantes){
-    console.log('CPBX ---> Ya tengo todas las voces. Procediendo a manejar la llamada ...');
+    //console.log('CPBX ---> Ya tengo todas las voces. Procediendo a manejar la llamada ...');
     AgregaTextoLog('CPBX ---> Ya tengo todas las voces. Procediendo a manejar la llamada ...',2);
 
     //Si las voces son válidas, se procesan
@@ -782,19 +792,19 @@ function(){
 
     //Habiendo comenzado a procesar con Web Audio, se realiza/responde una llamada
     if(isPeticionLlamada){
-      console.log('CPBX ---> Se realizará una llamada ...');
+      //console.log('CPBX ---> Se realizará una llamada ...');
       AgregaTextoLog('CPBX ---> Se realizará una llamada ...',2);
       NuevaLlamada();
     }
 
     else if(isLlamadaEntrante){
-      console.log('CPBX ---> Se responderá una llamada ...');
+      //console.log('CPBX ---> Se responderá una llamada ...');
       AgregaTextoLog('CPBX ---> Se responderá una llamada ...',2);
       ResponderLlamada();
     }
 
   }else{
-    console.log('CPBX ---> Aún no tengo todas las voces .... (Voces: '+cantVoces+') (Personas: '+cantParticipantes+')');
+    //console.log('CPBX ---> Aún no tengo todas las voces .... (Voces: '+cantVoces+') (Personas: '+cantParticipantes+')');
     AgregaTextoLog('CPBX ---> Aún no tengo todas las voces ....',2);
   }
 };
@@ -809,7 +819,7 @@ function (clienteDestino) {
   // Se pueden invocar las sig//uientes funciones después de crearse:
   // 1.- AgregarDescripcionLocal si fue exitosa la creación
   // 2.- onSignalingError si no fue exitosa
-  console.log('CPBX ---> Ejecutando CrearOfertaSDP. Creando oferta...');
+  //console.log('CPBX ---> Ejecutando CrearOfertaSDP. Creando oferta...');
   AgregaTextoLog('CPBX ---> Ejecutando CrearOfertaSDP. Creando oferta...',2);
 
   var pc = peerConnections[clienteDestino];
@@ -838,7 +848,7 @@ function (clienteDestino) {
 */
 CrearRespuestaSDP =
 function (clienteDestino) {
-  console.log('CPBX ---> Creando respuesta al otro usuario');
+  //console.log('CPBX ---> Creando respuesta al otro usuario');
   AgregaTextoLog('CPBX ---> Creando respuesta al otro usuario',2);
 
   var pc = peerConnections[clienteDestino];
@@ -867,10 +877,10 @@ function (clienteDestino) {
 */
 RevisarStatusCanal =
 function (clienteDestino) {
-  console.log("CPBX ---> Ejecutando función RevisarStatusCanal");
+  //console.log("CPBX ---> Ejecutando función RevisarStatusCanal");
   AgregaTextoLog("CPBX ---> Ejecutando función RevisarStatusCanal",2);
 
-  console.log("CPBX ---> Banderas: isIniciado= " + isIniciado[clienteDestino] + ", isCanalListo= " + isCanalListo + "isIniciaLlamada= " + isIniciaLlamada);
+  //console.log("CPBX ---> Banderas: isIniciado= " + isIniciado[clienteDestino] + ", isCanalListo= " + isCanalListo + "isIniciaLlamada= " + isIniciaLlamada);
   AgregaTextoLog("CPBX ---> Banderas: isIniciado= " + isIniciado[clienteDestino] + ", isCanalListo= " + isCanalListo + "isIniciaLlamada= " + isIniciaLlamada,2);
 
   // Si el canal está listo, se tienen los flujos locales pero no se ha iniciado la llamada,
@@ -879,7 +889,7 @@ function (clienteDestino) {
 
     CrearPeerConnection(clienteDestino);
     isIniciado[clienteDestino] = true;
-    console.log("CPBX ---> Se ha creado un PeerConnection con el otro usuario (isIniciado: " + isIniciado[clienteDestino] + ")");
+    //console.log("CPBX ---> Se ha creado un PeerConnection con el otro usuario (isIniciado: " + isIniciado[clienteDestino] + ")");
     AgregaTextoLog("CPBX ---> Se ha creado un PeerConnection con el otro usuario (isIniciado: " + isIniciado[clienteDestino] + ")",2);
 
     // Si yo inicié se ejecuta la función CrearOfertaSDP
@@ -892,7 +902,7 @@ function (clienteDestino) {
 
 CrearTonoMarcando =
 function () {
-  console.log("estoy creando el tono sordo ....");
+  //console.log("estoy creando el tono sordo ....");
   //galería de tonos disponibles
   var tonoLlamada = 'tonos/tonoLlamada.wav';
 
@@ -902,12 +912,12 @@ function () {
   request.responseType = 'arraybuffer';
 
   request.onload = function () {
-    console.log('CPBX ---> Guardando en buffer...');
+    //console.log('CPBX ---> Guardando en buffer...');
     AgregaTextoLog('CPBX ---> Guardando en buffer...',2);
 
     context.decodeAudioData(request.response,function (buffer) {
       bufferAudio = buffer;
-      console.log("CPBX ---> Buffer listo");
+      //console.log("CPBX ---> Buffer listo");
       AgregaTextoLog('CPBX ---> Buffer listo',2);
       EnviarTono();
     });
@@ -920,7 +930,7 @@ EnviarTono =
 function () {
   //Establecer como flujo local
   var source = context.createBufferSource();
-  console.log(bufferAudio);
+  //console.log(bufferAudio);
   source.buffer = bufferAudio;
   source.loop = true;
   source.start();
@@ -933,13 +943,13 @@ function () {
   source.connect(remote);
   flujoLocal = remote.stream;
 
-  console.log("CPBX ---> Tono de invitación cargado");
+  //console.log("CPBX ---> Tono de invitación cargado");
   AgregaTextoLog('CPBX ---> Tono de invitación cargado',2);
 
   /**var audioMezcla = document.getElementById('audioMezcla');
   audioMezcla = JsSIP.rtcninja.attachMediaStream(audioMezcla, flujoLocal);
-  console.log("Probando la voz ....");
-  console.log(flujoLocal);**/
+  //console.log("Probando la voz ....");
+  //console.log(flujoLocal);**/
 };
 
 
@@ -958,7 +968,7 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
 
   //Cuando reciba OK
   socket.on("OK", function (usuario) {
-    console.log("CPBX ---> (OK): " + usuario);
+    //console.log("CPBX ---> (OK): " + usuario);
     AgregaTextoLog("CPBX ---> (OK): " + usuario,2);
 
     idUsuario = usuario;
@@ -974,9 +984,9 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
   socket.on("INVITE", function (mensaje) {
     if(isPeticionLlamada || isLlamadaEntrante){
       //solo cuando está una llamada activa recibo peticiones de invitación
-      console.log("CPBX ---> (INVITE)");
+      //console.log("CPBX ---> (INVITE)");
       AgregaTextoLog("CPBX ---> (INVITE)",2);
-      console.log(mensaje);
+      //console.log(mensaje);
 
       //RevisarStatusCanal(mensaje.de);
       EnviarMensaje("INVITE", idUsuario, nombreUsuario);
@@ -987,13 +997,13 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
   socket.on("MESSAGE", function (mensaje) {
 
     if (mensaje.contenido.type == 'offer') {
-      console.log("CPBX ---> (MESSAGE) type: offer de (" + mensaje.de + ")");
+      //console.log("CPBX ---> (MESSAGE) type: offer de (" + mensaje.de + ")");
       AgregaTextoLog("CPBX ---> (MESSAGE) type: offer de (" + mensaje.de + ")",2);
 
       // Esta es una oferta SDP
       // Si no soy quien inició la llamada, y aún no se
       // ha arrancado la comunicación, se debe revisar el estado del canal
-      console.log("isIniciaLlamada: "+isIniciaLlamada+" isIniciado: "+isIniciado[mensaje.de]);
+      //console.log("isIniciaLlamada: "+isIniciaLlamada+" isIniciado: "+isIniciado[mensaje.de]);
       if (!isIniciaLlamada && !isIniciado[mensaje.de]) {
         RevisarStatusCanal(mensaje.de);
       }
@@ -1002,7 +1012,7 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
       // Esta función es de la API de WebRTC
       // Después, se envía una respuesta
       peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
-      console.log('CPBX ---> Se guardó la oferta SDP');
+      //console.log('CPBX ---> Se guardó la oferta SDP');
       AgregaTextoLog('CPBX ---> Se guardó la oferta SDP',2);
       CrearRespuestaSDP(mensaje.de);
 
@@ -1010,7 +1020,7 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
       // Esta es una respuesta SDP
       // Se guarda como una descripción remota
       peerConnections[mensaje.de].setRemoteDescription(new RTCSessionDescription(mensaje.contenido));
-      console.log('CPBX ---> Se guardó la respuesta SDP');
+      //console.log('CPBX ---> Se guardó la respuesta SDP');
       AgregaTextoLog('CPBX ---> Se guardó la respuesta SDP',2);
 
     } else if (mensaje.contenido.type == 'candidate' && isIniciado[mensaje.de]) {
@@ -1023,12 +1033,12 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
         candidate: mensaje.contenido.candidate
       });
       peerConnections[mensaje.de].addIceCandidate(candidate);
-      console.log('CPBX ---> Se agregó al candidato ICE');
+      //console.log('CPBX ---> Se agregó al candidato ICE');
       AgregaTextoLog('CPBX ---> Se agregó al candidato ICE',2);
 
     }else if(mensaje.contenido.type == 'hangup'){
       // Petición para colgar la llamada actual
-      console.log("CPBX ---> Colgando la llamada actual ....");
+      //console.log("CPBX ---> Colgando la llamada actual ....");
       AgregaTextoLog("CPBX ---> Colgando la llamada actual ....",2);
       ColgarLlamada();
 
@@ -1037,7 +1047,7 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
       // Petición de marcación para el PBX
       numTel="9"+mensaje.contenido.number;
       nombreUsuario=mensaje.contenido.number;
-      console.log("CPBX ---> Se desea marcar al número "+numTel);
+      //console.log("CPBX ---> Se desea marcar al número "+numTel);
       AgregaTextoLog("CPBX ---> Se desea marcar al número "+numTel,2);
 
       isPeticionLlamada=true;
@@ -1045,12 +1055,12 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
 
     }else if(mensaje.contenido.type == 'log'){
       // Mensaje de log del servidor de señalización
-      console.log("CPBX ---> Mensaje de log del servidor de señalización ....");
+      //console.log("CPBX ---> Mensaje de log del servidor de señalización ....");
       AgregaTextoLog(mensaje.contenido.mensaje,0);
 
     }else{
       // Un nuevo usuario llegó a la sala
-      console.log("CPBX ---> Ha llegado un nuevo usuario: " + mensaje.contenido);
+      //console.log("CPBX ---> Ha llegado un nuevo usuario: " + mensaje.contenido);
       AgregaTextoLog("CPBX ---> Ha llegado un nuevo usuario: " + mensaje.contenido,2);
 
       isCanalListo = true;
@@ -1058,17 +1068,17 @@ function (_pc_config, _pc_constraints, _sdpConstraints, _constraints) {
       //debo esperar a que me lleguen todos los audios para poder marcar!
       //aquí es donde sé quiénes están en la sala para poder hablar por teléfono ....
       cantParticipantes++;
-      console.log("CPBX ---> Hay "+cantParticipantes+" participantes en este momento ...");
+      //console.log("CPBX ---> Hay "+cantParticipantes+" participantes en este momento ...");
       AgregaTextoLog("CPBX ---> Hay "+cantParticipantes+" participantes en este momento ...",2);
     }
   });
 
   //Cuando reciba BYE
   socket.on("BYE", function (clienteDestino) {
-    console.log("CPBX ---> (BYE) de : " + clienteDestino);
+    //console.log("CPBX ---> (BYE) de : " + clienteDestino);
     AgregaTextoLog("CPBX ---> (BYE) de: " + clienteDestino,2);
     cantParticipantes--;
-    console.log("Los participantes que quedan en la sala son: "+cantParticipantes);
+    //console.log("Los participantes que quedan en la sala son: "+cantParticipantes);
     AgregaTextoLog("Los participantes que quedan en la sala son: "+cantParticipantes,2);
 
     if (isIniciado[clienteDestino]) {
